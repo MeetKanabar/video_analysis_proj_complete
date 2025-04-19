@@ -48,14 +48,19 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    transition-property: background-color, color;
+    transition-duration: 300ms;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  * {
+    border-color: hsl(var(--border));
+  }
 }
+
 
 .animated-gradient {
   background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
