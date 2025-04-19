@@ -135,7 +135,7 @@ const HomePage = () => {
                   className="w-32 h-12 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300"
                 >
                   <img
-                    ssrc={`../assests/company/company-${i + 1}.png`}
+                    src={`/assets/company/company-${i + 1}.png`}
                     alt={`Company ${i + 1}`}
                     className="max-h-full"
                   />
@@ -149,7 +149,7 @@ const HomePage = () => {
                   className="w-32 h-12 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300"
                 >
                   <img
-                    src={`../assests/company/company-${i + 6}.png`}
+                    src={`/assets/company/company-${i + 6}.png`}
                     alt={`Company ${i + 6}`}
                     className="max-h-full"
                   />
@@ -249,7 +249,7 @@ const HomePage = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-blue-200 to-purple-200 dark:from-blue-900/20 dark:to-purple-900/20 rounded-3xl transform -rotate-2" />
               <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden p-2 transform rotate-1">
                 <img
-                  src="/placeholder.svg?height=600&width=400&text=App Screenshot"
+                  src="/assets/why/why.png"
                   alt="ConfidentSpeak App"
                   className="w-full rounded-2xl"
                 />
@@ -400,21 +400,21 @@ const HomePage = () => {
               {
                 name: "Alex Johnson",
                 role: "Marketing Manager",
-                image: "/placeholder.svg?height=100&width=100&text=AJ",
+                image: "/assets/clientsay/user-1.png",
                 quote:
                   "ConfidentSpeak has completely transformed how I present to clients. My delivery is now more confident and I receive consistent positive feedback.",
               },
               {
                 name: "Sarah Williams",
                 role: "University Student",
-                image: "/placeholder.svg?height=100&width=100&text=SW",
+                image: "/assets/clientsay/user-2.png",
                 quote:
                   "As a non-native English speaker, I struggled with pronunciation. The detailed feedback from ConfidentSpeak has improved my speaking clarity significantly.",
               },
               {
                 name: "Michael Chen",
                 role: "Software Engineer",
-                image: "/placeholder.svg?height=100&width=100&text=MC",
+                image: "/assets/clientsay/user-3.png",
                 quote:
                   "The AI analysis pinpointed exactly what I needed to work on. I'm now more comfortable in team meetings and presentations.",
               },
@@ -469,7 +469,7 @@ const HomePage = () => {
             >
               <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/20 rounded-full opacity-50 transform scale-90 blur-3xl"></div>
               <img
-                src="/placeholder.svg?height=400&width=400&text=Newsletter"
+                src="/assets/newsletter/newsletter.png"
                 alt="Newsletter"
                 className="relative z-10 mx-auto"
               />
