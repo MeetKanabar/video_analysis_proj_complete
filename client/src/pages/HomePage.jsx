@@ -1,27 +1,38 @@
-"use client"
+"use client";
 
-import { useRef } from "react"
-import { motion, useScroll, useTransform } from "framer-motion"
-import { Link } from "react-router-dom"
-import Navbar from "../components/Navbar"
-import Footer from "../components/Footer"
-import { BarChart, Sparkles, MessageSquare, TrendingUp, Users, ArrowRight, Send } from "lucide-react"
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Link } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import {
+  BarChart,
+  Sparkles,
+  MessageSquare,
+  TrendingUp,
+  Users,
+  ArrowRight,
+  Send,
+} from "lucide-react";
 
 const HomePage = () => {
-  const ref = useRef(null)
+  const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end end"],
-  })
+  });
 
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
 
       {/* Hero Section */}
-      <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden">
+      <section
+        ref={ref}
+        className="relative min-h-screen flex items-center overflow-hidden"
+      >
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-blue-900" />
           <div className="absolute inset-0 opacity-30 dark:opacity-20">
@@ -42,11 +53,15 @@ const HomePage = () => {
               Where AI meets Confident Communication.
             </h1>
             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8">
-              Enhance your public speaking skills with AI-powered analysis and feedback. Master pronunciation, language,
-              and gain confidence in your communication.
+              Enhance your public speaking skills with AI-powered analysis and
+              feedback. Master pronunciation, language, and gain confidence in
+              your communication.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Link
                   to="/practice"
                   className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-2"
@@ -55,7 +70,10 @@ const HomePage = () => {
                   <ArrowRight size={16} />
                 </Link>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Link
                   to="/games"
                   className="px-8 py-3 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
@@ -74,7 +92,9 @@ const HomePage = () => {
           style={{ opacity }}
         >
           <div className="flex flex-col items-center">
-            <span className="text-sm text-gray-500 dark:text-gray-400 mb-2">Scroll to explore</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+              Scroll to explore
+            </span>
             <div className="w-6 h-10 border-2 border-gray-500 dark:border-gray-400 rounded-full flex justify-center">
               <motion.div
                 className="w-1 h-2 bg-gray-500 dark:bg-gray-400 rounded-full mt-2"
@@ -96,7 +116,9 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-8"
           >
-            <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-200">Trusted by organizations worldwide</h2>
+            <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-200">
+              Trusted by organizations worldwide
+            </h2>
           </motion.div>
 
           <motion.div
@@ -113,7 +135,7 @@ const HomePage = () => {
                   className="w-32 h-12 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300"
                 >
                   <img
-                    src={`/placeholder.svg?height=48&width=128&text=Company ${i + 1}`}
+                    src={`/images/company-${i + 1}.png`}
                     alt={`Company ${i + 1}`}
                     className="max-h-full"
                   />
@@ -127,7 +149,7 @@ const HomePage = () => {
                   className="w-32 h-12 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300"
                 >
                   <img
-                    src={`/placeholder.svg?height=48&width=128&text=Company ${i + 6}`}
+                    src={`../assests/company/company-${i + 6}.png`}
                     alt={`Company ${i + 6}`}
                     className="max-h-full"
                   />
@@ -152,7 +174,8 @@ const HomePage = () => {
               Powerful Tools For Your Growth
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Our platform provides comprehensive features to help you master public speaking and communication skills.
+              Our platform provides comprehensive features to help you master
+              public speaking and communication skills.
             </p>
           </motion.div>
 
@@ -161,22 +184,26 @@ const HomePage = () => {
               {
                 icon: <BarChart className="w-8 h-8 text-blue-500" />,
                 title: "Progress Tracking",
-                description: "Track your improvement over time with detailed analytics and personalized insights.",
+                description:
+                  "Track your improvement over time with detailed analytics and personalized insights.",
               },
               {
                 icon: <Sparkles className="w-8 h-8 text-purple-500" />,
                 title: "AI Analysis",
-                description: "Get detailed analysis of your speaking patterns, tone, and emotions through advanced AI.",
+                description:
+                  "Get detailed analysis of your speaking patterns, tone, and emotions through advanced AI.",
               },
               {
                 icon: <MessageSquare className="w-8 h-8 text-green-500" />,
                 title: "Personalized Feedback",
-                description: "Receive actionable feedback tailored to your specific areas for improvement.",
+                description:
+                  "Receive actionable feedback tailored to your specific areas for improvement.",
               },
               {
                 icon: <Users className="w-8 h-8 text-pink-500" />,
                 title: "Interactive Chatbot",
-                description: "Practice conversations with our AI chatbot to build confidence in real-world scenarios.",
+                description:
+                  "Practice conversations with our AI chatbot to build confidence in real-world scenarios.",
               },
             ].map((feature, index) => (
               <motion.div
@@ -188,15 +215,20 @@ const HomePage = () => {
                 viewport={{ once: true }}
                 whileHover={{
                   scale: 1.03,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                  boxShadow:
+                    "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
                 }}
               >
                 <div className="mb-4 relative">
                   <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full opacity-20 transform scale-150 blur-xl" />
                   <div className="relative">{feature.icon}</div>
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{feature.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
+                <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  {feature.description}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -235,8 +267,9 @@ const HomePage = () => {
                   Why Choose ConfidentSpeak?
                 </h2>
                 <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                  Our platform combines cutting-edge AI technology with proven speaking techniques to help you become a
-                  confident communicator.
+                  Our platform combines cutting-edge AI technology with proven
+                  speaking techniques to help you become a confident
+                  communicator.
                 </p>
               </motion.div>
 
@@ -250,12 +283,14 @@ const HomePage = () => {
                 {
                   icon: <MessageSquare className="w-6 h-6 text-purple-500" />,
                   title: "Real-time Coaching",
-                  description: "Get instant feedback and suggestions to improve your speaking as you practice.",
+                  description:
+                    "Get instant feedback and suggestions to improve your speaking as you practice.",
                 },
                 {
                   icon: <TrendingUp className="w-6 h-6 text-green-500" />,
                   title: "Precision Feedback",
-                  description: "Receive specific, actionable feedback on pronunciation, clarity, and fluency.",
+                  description:
+                    "Receive specific, actionable feedback on pronunciation, clarity, and fluency.",
                 },
               ].map((item, index) => (
                 <motion.div
@@ -270,8 +305,12 @@ const HomePage = () => {
                     {item.icon}
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">{item.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">{item.description}</p>
+                    <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {item.description}
+                    </p>
                   </div>
                 </motion.div>
               ))}
@@ -290,9 +329,12 @@ const HomePage = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">Global Network</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+              Global Network
+            </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Join our community of speakers from around the world who are improving their skills every day.
+              Join our community of speakers from around the world who are
+              improving their skills every day.
             </p>
           </motion.div>
 
@@ -301,7 +343,12 @@ const HomePage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
               {[
-                { country: "United States", users: "120K+", x: "30%", y: "40%" },
+                {
+                  country: "United States",
+                  users: "120K+",
+                  x: "30%",
+                  y: "40%",
+                },
                 { country: "Australia", users: "45K+", x: "80%", y: "70%" },
                 { country: "China", users: "95K+", x: "75%", y: "45%" },
                 { country: "Bangladesh", users: "30K+", x: "68%", y: "55%" },
@@ -315,8 +362,12 @@ const HomePage = () => {
                   viewport={{ once: true }}
                   whileHover={{ scale: 1.03 }}
                 >
-                  <h3 className="text-xl font-bold mb-1 text-gray-900 dark:text-white">{location.country}</h3>
-                  <p className="text-blue-600 dark:text-blue-400 font-semibold mb-3">{location.users} Users</p>
+                  <h3 className="text-xl font-bold mb-1 text-gray-900 dark:text-white">
+                    {location.country}
+                  </h3>
+                  <p className="text-blue-600 dark:text-blue-400 font-semibold mb-3">
+                    {location.users} Users
+                  </p>
                   <div className="h-1 w-20 bg-gradient-to-r from-blue-400 to-purple-500"></div>
                 </motion.div>
               ))}
@@ -335,9 +386,12 @@ const HomePage = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">What Our Users Say</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+              What Our Users Say
+            </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Hear from people who have transformed their speaking skills using our platform.
+              Hear from people who have transformed their speaking skills using
+              our platform.
             </p>
           </motion.div>
 
@@ -374,7 +428,9 @@ const HomePage = () => {
                 viewport={{ once: true }}
               >
                 <div className="text-gray-600 dark:text-gray-300 mb-6 relative">
-                  <div className="absolute -top-2 -left-2 text-4xl text-blue-400 opacity-30">"</div>
+                  <div className="absolute -top-2 -left-2 text-4xl text-blue-400 opacity-30">
+                    "
+                  </div>
                   <p className="relative z-10">{testimonial.quote}</p>
                 </div>
                 <div className="flex items-center">
@@ -386,8 +442,12 @@ const HomePage = () => {
                     />
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900 dark:text-white">{testimonial.name}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{testimonial.role}</p>
+                    <h4 className="font-bold text-gray-900 dark:text-white">
+                      {testimonial.name}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {testimonial.role}
+                    </p>
                   </div>
                 </div>
               </motion.div>
@@ -421,10 +481,12 @@ const HomePage = () => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">Get Speaking Tips in Your Inbox</h2>
+              <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
+                Get Speaking Tips in Your Inbox
+              </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                Subscribe to our newsletter and receive weekly tips, exercises, and resources to improve your speaking
-                skills.
+                Subscribe to our newsletter and receive weekly tips, exercises,
+                and resources to improve your speaking skills.
               </p>
 
               <form className="flex flex-col sm:flex-row gap-4">
@@ -454,7 +516,7 @@ const HomePage = () => {
 
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;
