@@ -7,6 +7,7 @@ import { Scatter } from "react-chartjs-2"
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, Tooltip, Legend } from "chart.js"
 import Navbar from "../components/Navbar"
 import Footer from "../components/Footer"
+import axios from "axios"
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, Tooltip, Legend)
 
@@ -29,20 +30,20 @@ const AudioAnalysis = () => {
 
     try {
       // Simulate API call since we don't have the actual backend
-      setTimeout(() => {
-        // Mock response with a random sequence of emotions
-        const mockEmotions = []
-        const possibleEmotions = ["happy", "sad", "angry", "neutral", "disgust", "fear", "surprise"]
+      // setTimeout(() => {
+      //   // Mock response with a random sequence of emotions
+      //   const mockEmotions = []
+      //   const possibleEmotions = ["happy", "sad", "angry", "neutral", "disgust", "fear", "surprise"]
 
-        for (let i = 0; i < 10; i++) {
-          mockEmotions.push(possibleEmotions[Math.floor(Math.random() * possibleEmotions.length)])
-        }
+      //   for (let i = 0; i < 10; i++) {
+      //     mockEmotions.push(possibleEmotions[Math.floor(Math.random() * possibleEmotions.length)])
+      //   }
 
-        setEmotions(mockEmotions)
-      }, 2000)
+      //   setEmotions(mockEmotions)
+      // }, 2000)
 
       // Uncomment this when you have the actual API
-      /*
+      
       const response = await axios.post(
         "http://localhost:5000/predict",
         formData,
@@ -61,7 +62,7 @@ const AudioAnalysis = () => {
       }
 
       setEmotions(Array.isArray(parsedEmotions) ? parsedEmotions : [])
-      */
+      
     } catch (error) {
       console.error("Error predicting emotion:", error)
     }
