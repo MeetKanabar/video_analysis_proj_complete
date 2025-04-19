@@ -1,63 +1,55 @@
-import React from "react";
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { ClerkProvider } from "@clerk/clerk-react";
-import AudioAnalysis from "./components/AudioAnalysis";
-import Banner from "./components/banner/Banner";
-import Navbar from "./components/navbar/Navbar";
-import Companies from "./components/companies/Companies";
-import Provide from "./components/provide/Provide";
-import Why from "./components/why/Why";
-import Network from "./components/network/Network";
-import Clientsay from "./components/clientsay/Clientsay";
-import Newsletter from "./components/newsletter/Newsletter";
-import Footer from "./components/footer/Footer";
-import AnalysisPage from "./components/practice/Practice";
-import Signin from "./components/auth/signin";
-import Signup from "./components/auth/signup";
-import GamesPage from "./components/games/Games";
-import DefinitionQuiz from "./components/games/Game2";
-import WordExplorer from "./components/games/Game1";
-import PronunciationCheck from "./components/games/Game3";
+"use client"
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+import { Routes, Route } from "react-router-dom"
+import { AnimatePresence } from "framer-motion"
+import { useLocation } from "react-router-dom"
+import { SignIn, SignUp, ClerkLoaded, ClerkLoading } from "@clerk/clerk-react"
+
+// Pages
+import HomePage from "./pages/HomePage"
+import PracticePage from "./pages/PracticePage"
+import GamesPage from "./pages/GamesPage"
+import AudioAnalysis from "./pages/AudioAnalysis"
+import VideoPage from "./pages/VideoPage"
+import TextPage from "./pages/TextPage"
+import WordExplorer from "./pages/WordExplorer"
+import DefinitionQuiz from "./pages/DefinitionQuiz"
+import PronunciationCheck from "./pages/PronunciationCheck"
+
+// Components
+import AnimatedCursor from "./components/AnimatedCursor"
+import Loader from "./components/Loader"
 
 function App() {
+  const location = useLocation()
+
   return (
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <>
-                  <Navbar />
-                  <Banner />
-                  <Companies />
-                  <Provide />
-                  <Why />
-                  <Network />
-                  <Clientsay />
-                  <Newsletter />
-                  <Footer />
-                </>
-              }
-            />
+    <>
+      <AnimatedCursor />
+
+      <ClerkLoading>
+        <Loader />
+      </ClerkLoading>
+
+      <ClerkLoaded>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/practice" element={<PracticePage />} />
             <Route path="/games" element={<GamesPage />} />
-            <Route path="/practice" element={<AnalysisPage />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/signin" element={<Signin />} />
-            {/* <Route path="/video" element={<VideoAnalysis />} /> */}
             <Route path="/audio" element={<AudioAnalysis />} />
-            {/* <Route path="/text" element={<TextAnalysis />} /> */}
+            <Route path="/video" element={<VideoPage />} />
+            <Route path="/text" element={<TextPage />} />
             <Route path="/word-explorer" element={<WordExplorer />} />
-            <Route path="/pronunciation-check" element={<PronunciationCheck />} />            
-            <Route path="/definition-quiz" element={<DefinitionQuiz />} /> {/* Add the new route */}
+            <Route path="/definition-quiz" element={<DefinitionQuiz />} />
+            <Route path="/pronunciation-check" element={<PronunciationCheck />} />
+            <Route path="/signin" element={<SignIn routing="path" path="/signin" />} />
+            <Route path="/signup" element={<SignUp routing="path" path="/signup" />} />
           </Routes>
-        </div>
-      </Router>
-    </ClerkProvider>
-  );
+        </AnimatePresence>
+      </ClerkLoaded>
+    </>
+  )
 }
 
-export default App;
+export default App
