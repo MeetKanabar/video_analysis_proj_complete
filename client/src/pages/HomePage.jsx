@@ -135,7 +135,7 @@ const HomePage = () => {
                   className="w-32 h-12 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300"
                 >
                   <img
-                    src={`/images/company-${i + 1}.png`}
+                    ssrc={`../assests/company/company-${i + 1}.png`}
                     alt={`Company ${i + 1}`}
                     className="max-h-full"
                   />
