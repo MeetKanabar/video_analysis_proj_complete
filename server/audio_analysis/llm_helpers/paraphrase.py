@@ -1,77 +1,55 @@
 import os
-import openai
-import socket
-import requests
-import httpx
 from openai import OpenAI
-from openai._types import NotGiven
+import requests
 
-# ✅ Store the original getaddrinfo method to fallback if needed
-if not hasattr(socket, "__orig_getaddrinfo"):
-    socket.__orig_getaddrinfo = socket.getaddrinfo
-
-# ✅ Force IPv4 to prevent common DNS errors (421 etc.)
-socket.getaddrinfo = lambda *args, **kwargs: [
-    a for a in socket.__orig_getaddrinfo(*args, **kwargs) if a[0] == socket.AF_INET
-]
-
-# ✅ Load API key (env preferred for security)
-API_KEY = os.getenv("OPENAI_API_KEY", "sk-proj-...replace_with_yours...")
-if not API_KEY:
-    raise ValueError("❌ No OpenAI API key found. Set OPENAI_API_KEY as an environment variable.")
+# Setup
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
 
 client = OpenAI(
-    api_key=API_KEY,
-    http_client=httpx.Client(http2=False, timeout=10.0)  # disables HTTP/2 which breaks some TLS
+    base_url="https://api.groq.com/openai/v1",
+    api_key=GROQ_API_KEY,
 )
 
-def paraphrase_text(text, model="gpt-3.5-turbo", temperature=0.7):
+def paraphrase_text(text, model="llama3-8b-8192", temperature=0.7):
     """
-    Paraphrases input text using OpenAI's GPT model.
-
-    Args:
-        text (str): Text to paraphrase
-        model (str): Model to use
-        temperature (float): Creativity level
-
-    Returns:
-        str: Paraphrased output
+    Uses Groq-hosted LLaMA 3 model to paraphrase input text.
     """
     try:
         print("🔹 Original Text:", text)
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "You are an assistant that rewrites text using different wording while keeping the meaning. Be fluent, natural, and avoid redundancy."},
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant that rewrites user input with different structure and vocabulary while keeping the same meaning. Keep it fluent and natural."
+                },
                 {"role": "user", "content": f"Paraphrase this: {text}"}
             ],
             temperature=temperature,
-            max_tokens=200,
+            max_tokens=256
         )
+        output = response.choices[0].message.content.strip()
+        print("✅ Paraphrased:", output)
+        return output
 
-        paraphrased = response.choices[0].message.content.strip()
-        print("✅ Paraphrased:", paraphrased)
-        return paraphrased
-
-    except openai.APIConnectionError as e:
-        print("❌ Network error:", e.__class__.__name__, "-", str(e))
-    except openai.OpenAIError as e:
-        print("❌ OpenAI API error:", e.__class__.__name__, "-", str(e))
     except Exception as e:
-        print("❌ Unexpected error:", type(e).__name__, "-", str(e))
+        print(f"❌ Paraphrasing failed: {type(e).__name__} - {e}")
+        return None
 
-    return None
-
-# ✅ Optional: Test internet access to OpenAI
-def test_connectivity():
-    try:
-        response = requests.get("https://api.openai.com/v1/models", headers={"Authorization": f"Bearer {API_KEY}"})
-        print(f"🌐 Connectivity check: {response.status_code} ({'OK' if response.ok else 'Fail'})")
-    except Exception as e:
-        print("❌ Failed to reach OpenAI API:", str(e))
-
+# Test
 if __name__ == "__main__":
-    test_connectivity()
-    print("🔍 Running Paraphraser...\n")
-    sample_text = "The weather is great for a walk in the park today."
-    paraphrase_text(sample_text)
+    test = "The weather is great for a walk in the park today."
+    paraphrase_text(test)
+
+
+# import requests
+
+# GROQ_API_KEY = "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"
+# headers = {
+#     "Authorization": f"Bearer {GROQ_API_KEY}"
+# }
+
+# r = requests.get("https://api.groq.com/openai/v1/models", headers=headers)
+# print(r.status_code)
+# print(r.text)
+

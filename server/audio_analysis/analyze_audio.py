@@ -60,5 +60,5 @@ def analyze_audio_pipeline(audio_path):
 
 
 if __name__ == "__main__":
-    audio_file_path = "./output.wav"  # Change to match your actual path
+    audio_file_path = "C:/IPD Project/server/audio_analysis/output.wav"
     analyze_audio_pipeline(audio_file_path)
