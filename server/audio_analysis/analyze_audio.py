@@ -19,38 +19,100 @@ def analyze_audio_pipeline(audio_path):
     if not text:
         return json.dumps({ "error": "Unable to transcribe audio." })
 
-    result["transcription"] = text
+    result["transcription"] = {
+        "text": text,
+        "fillerWords": analyze_filler_words(text, verbose=False)["counts"]
+    }
 
-    # 2. Filler Word Analysis
-    filler_data = analyze_filler_words(text, verbose=False)
-    result["filler_words"] = filler_data
-
-    # 3. Pause Analysis
+    # 2. Pause Analysis
     pause_data = analyze_pauses(audio_path, verbose=False)
-    result["pauses"] = pause_data
+    result["pauses"] = {
+        "count": pause_data["short_pauses"] + pause_data["long_pauses"],
+        "shortPauses": pause_data["short_pauses"],
+        "longPauses": pause_data["long_pauses"],
+        "feedback": (
+            "You have a good balance of pauses. Consider adding more strategic pauses before key points for emphasis."
+            if pause_data["long_pauses"] <= 5 else
+            "You tend to pause frequently. Try reducing long pauses to improve flow."
+        )
+    }
 
-    # 4. Speech Speed Analysis
+    # 3. Speech Speed
     speed_data = analyze_speech_speed(audio_path, verbose=False)
-    result["speech_speed"] = speed_data
+    wpm = speed_data["wpm"]
+    result["speed"] = {
+        "wpm": wpm,
+        "assessment": (
+            "slow" if wpm < 120 else "fast" if wpm > 180 else "moderate"
+        ),
+        "feedback": (
+            "You're speaking a bit slow. Speeding up could enhance engagement."
+            if wpm < 120 else
+            "You're speaking a bit fast. Slowing down may improve clarity."
+            if wpm > 180 else
+            "Your speaking pace is good, averaging {:.0f} words per minute.".format(wpm)
+        )
+    }
 
-    # 5. Energy Level
-    energy_data = compute_energy_level(audio_path, plot=False)
-    result["energy"] = energy_data
+    # 4. Energy Level
+    energy = compute_energy_level(audio_path, plot=False)
+    level = energy["energy_level"]
+    result["energy"] = {
+        "level": level.lower(),
+        "variation": (
+            "low" if energy["pitch_variation"] < 20 else
+            "high" if energy["pitch_variation"] > 40 else
+            "medium"
+        ),
+        "feedback": (
+            "Your energy level is consistent. Try modulating tone for key points."
+            if level == "Moderate Energy" else
+            "Great enthusiasm! Keep it up!" if level == "High Energy" else
+            "Try using more energy and vocal variety to keep attention."
+        )
+    }
 
-    # 6. Pitch & Loudness Visualization
+    # 5. Pitch + Loudness Plot
     y, sr = load_audio(audio_path)
-    pitch_vals = analyze_pitch(y, sr)
+    pitch_values = analyze_pitch(y, sr)
     rms, time_rms = analyze_loudness(y, sr)
-    plot_path = "./server/audio_analysis/output/pitch_loudness.png"
-    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
-    plot_audio_features(y, sr, pitch_vals, rms, time_rms, save_path=plot_path)
-    result["pitch_plot_path"] = plot_path
+    avg_pitch = float(sum(pitch_values) / len(pitch_values)) if pitch_values else 0
+    pitch_var = float(max(pitch_values) - min(pitch_values)) if pitch_values else 0
+    result["pitch"] = {
+        "average": round(avg_pitch),
+        "variation": round(pitch_var),
+        "data": [
+            {"time": round(time_rms[i], 2), "pitch": round(pitch_values[i], 2), "volume": round(rms[i], 3)}
+            for i in range(min(len(pitch_values), len(rms)))
+        ],
+        "feedback": (
+            "Your pitch variation is good. Keep working on expressive delivery."
+            if pitch_var > 25 else
+            "Try varying your pitch more to make your speech more dynamic."
+        )
+    }
 
-    # 7. Paraphrasing
+    # 6. Paraphrasing
     paraphrased = paraphrase_text(text)
-    result["paraphrased"] = paraphrased
+    result["paraphrased"] = {
+        "text": paraphrased or "Paraphrasing failed or no meaningful output returned."
+    }
 
-    # ✅ Final Output
+    # 7. Overall Score (naive version for now)
+    filler_penalty = len(result["transcription"]["fillerWords"])
+    pause_penalty = result["pauses"]["longPauses"]
+    speech_score = 100 - (filler_penalty * 2 + pause_penalty * 2)
+    speech_score = max(min(speech_score, 100), 60)
+
+    result["overallScore"] = speech_score
+    result["overallFeedback"] = (
+        "Great clarity and energy! Work a bit on filler reduction and more dynamic pacing."
+        if speech_score > 85 else
+        "Solid delivery. Aim to reduce filler words and improve tonal variety."
+        if speech_score > 70 else
+        "You're on the right track! Try reducing fillers and increasing pitch variation for engagement."
+    )
+
     return json.dumps(result, indent=2)
 
 
