@@ -137,41 +137,48 @@ const AudioAnalysis = () => {
   const analyzeAudio = async (blob) => {
     setIsAnalyzing(true);
     setAnalysisResults(null);
-  
+
     const formData = new FormData();
     formData.append("audio", blob, "recording.wav");
-  
+
     try {
       // Step 1: Call /audio-analysis endpoint
-      const audioAnalysisResponse = await fetch("http://localhost:5000/audio-analysis", {
-        method: "POST",
-        body: formData,
-      });
-      console.log("Audio Analysis Response:", audioAnalysisResponse); 
+      const audioAnalysisResponse = await fetch(
+        "http://localhost:5000/audio-analysis",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      console.log("Audio Analysis Response:", audioAnalysisResponse);
       if (!audioAnalysisResponse.ok) {
-        throw new Error(`Audio Analysis API error: ${audioAnalysisResponse.statusText}`);
+        throw new Error(
+          `Audio Analysis API error: ${audioAnalysisResponse.statusText}`
+        );
       }
-  
+
       const audioAnalysisResults = await audioAnalysisResponse.json();
-  
+
       // Step 2: Call /predict endpoint for emotion data
       const emotionResponse = await fetch("http://localhost:5000/predict", {
         method: "POST",
         body: formData,
       });
-  
+
       if (!emotionResponse.ok) {
-        throw new Error(`Emotion Prediction API error: ${emotionResponse.statusText}`);
+        throw new Error(
+          `Emotion Prediction API error: ${emotionResponse.statusText}`
+        );
       }
-  
+
       const emotionData = await emotionResponse.json();
-  
+
       // Step 3: Merge results
       const finalResults = {
         ...audioAnalysisResults,
         emotion: emotionData,
       };
-  
+
       // Step 4: Set the merged results
       setAnalysisResults(finalResults);
     } catch (error) {
@@ -187,10 +194,15 @@ const AudioAnalysis = () => {
 
   // Highlight filler words in transcription
   const highlightFillerWords = (text, fillerWords) => {
-    if (!text || !fillerWords || fillerWords.length === 0) return text;
+    if (!text || !fillerWords) return text;
+
+    // Convert fillerWords object to an array of keys if it's not already an array
+    const fillerWordsArray = Array.isArray(fillerWords)
+      ? fillerWords
+      : Object.keys(fillerWords);
 
     let highlightedText = text;
-    fillerWords.forEach((word) => {
+    fillerWordsArray.forEach((word) => {
       const regex = new RegExp(`\\b${word}\\b`, "gi");
       highlightedText = highlightedText.replace(
         regex,

@@ -21,9 +21,6 @@ app.post("/audio-analysis", upload.single("audio"), async (req, res) => {
   const filePath = path.join(__dirname, req.file.path);
   exec(`set PYTHONPATH=. && python audio_analysis/analyze_audio.py "${filePath}"`, (err, stdout, stderr) => {
     fs.unlinkSync(filePath);
-    console.log("📤 STDOUT from Python:", stdout);
-    console.error("🐍 STDERR from Python:", stderr);
-
     if (err) {
       console.error("❌ Python execution error:", err.message);
       return res.status(500).json({ error: stderr || err.message });
@@ -32,7 +29,6 @@ app.post("/audio-analysis", upload.single("audio"), async (req, res) => {
     try {
       const result = JSON.parse(stdout);
       res.json(result);
-      console.log("📤 Full Python output:", stdout);
       console.log("✅ JSON parsed successfully:");
 
     } catch (e) {
