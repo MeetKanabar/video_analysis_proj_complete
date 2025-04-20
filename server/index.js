@@ -1,15 +1,23 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
-const { exec } = require("child_process");
+const { exec, execSync } = require("child_process");
 const fs = require("fs");
 const cors = require("cors");
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 
 const app = express();
 app.use(cors());
 
 // Upload destination
 const upload = multer({ dest: "uploads/" });
+
+// ✅ Helper: Convert recorded audio to proper WAV format
+function convertToWav(inputPath) {
+  const outputPath = inputPath + ".wav";
+  execSync(`"${ffmpegPath}" -y -i "${inputPath}" -ar 22050 -ac 1 -f wav "${outputPath}"`);
+  return outputPath;
+}
 
 // 🔥 AUDIO ANALYSIS ENDPOINT 🔥
 app.post("/audio-analysis", upload.single("audio"), async (req, res) => {
@@ -19,8 +27,12 @@ app.post("/audio-analysis", upload.single("audio"), async (req, res) => {
   }
 
   const filePath = path.join(__dirname, req.file.path);
-  exec(`set PYTHONPATH=. && python audio_analysis/analyze_audio.py "${filePath}"`, (err, stdout, stderr) => {
+  const wavPath = convertToWav(filePath);
+
+  exec(`set PYTHONPATH=. && python audio_analysis/analyze_audio.py "${wavPath}"`, (err, stdout, stderr) => {
     fs.unlinkSync(filePath);
+    fs.unlinkSync(wavPath);
+
     if (err) {
       console.error("❌ Python execution error:", err.message);
       return res.status(500).json({ error: stderr || err.message });
@@ -30,7 +42,6 @@ app.post("/audio-analysis", upload.single("audio"), async (req, res) => {
       const result = JSON.parse(stdout);
       res.json(result);
       console.log("✅ JSON parsed successfully:");
-
     } catch (e) {
       console.error("🚨 Failed to parse JSON from Python:", e.message);
       console.log("⚠️ Raw output:", stdout);
@@ -38,7 +49,6 @@ app.post("/audio-analysis", upload.single("audio"), async (req, res) => {
     }
   });
 });
-
 
 // 🎭 EMOTION PREDICTION ENDPOINT
 app.post("/predict", upload.single("audio"), (req, res) => {
