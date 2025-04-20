@@ -16,19 +16,23 @@ def plot_audio_features(y, sr, pitch_values, rms, time_rms, save_path=None):
         save_path (str): If provided, saves the plot image to this path.
     """
     sns.set(style="whitegrid")
-    times = librosa.times_like(y, sr=sr)
+
+    # Calculate time array for pitch
+    num_frames = len(pitch_values)
+    frame_hop = 512  # This should match the hop_length used in pitch extraction
+    pitch_times = librosa.frames_to_time(np.arange(num_frames), sr=sr, hop_length=frame_hop)
 
     fig, axes = plt.subplots(2, 1, figsize=(14, 8))
 
-    # Pitch plot
-    axes[0].plot(times[:len(pitch_values)], pitch_values, color='#3498db', linewidth=1.5, label="Pitch")
-    axes[0].fill_between(times[:len(pitch_values)], pitch_values, color='#b3cde3', alpha=0.3)
+    # 🎵 Pitch Plot
+    axes[0].plot(pitch_times, pitch_values, color='#3498db', linewidth=1.5, label="Pitch")
+    axes[0].fill_between(pitch_times, pitch_values, color='#b3cde3', alpha=0.3)
     axes[0].set_title("Pitch Over Time", fontsize=16, fontweight="bold")
     axes[0].set_ylabel("Pitch (Hz)")
     axes[0].legend()
     axes[0].grid(True)
 
-    # Loudness (RMS) plot
+    # 🔊 Loudness (RMS) Plot
     axes[1].plot(time_rms, rms, color='#e74c3c', linewidth=1.5, label="Loudness (RMS)")
     axes[1].fill_between(time_rms, rms, color='#f4cccc', alpha=0.4)
     axes[1].set_title("Loudness Over Time", fontsize=16, fontweight="bold")
@@ -41,7 +45,7 @@ def plot_audio_features(y, sr, pitch_values, rms, time_rms, save_path=None):
 
     if save_path:
         plt.savefig(save_path)
-        print(f"📁 Plot saved to: {save_path}")
+        plt.close(fig)
+        print(f"📈 Plot saved to: {save_path}")
     else:
         plt.show()
-

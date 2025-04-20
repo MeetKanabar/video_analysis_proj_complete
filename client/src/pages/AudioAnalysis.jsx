@@ -147,7 +147,7 @@ const AudioAnalysis = () => {
         method: "POST",
         body: formData,
       });
-  
+      console.log("Audio Analysis Response:", audioAnalysisResponse); 
       if (!audioAnalysisResponse.ok) {
         throw new Error(`Audio Analysis API error: ${audioAnalysisResponse.statusText}`);
       }

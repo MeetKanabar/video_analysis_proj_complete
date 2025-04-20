@@ -13,23 +13,36 @@ const upload = multer({ dest: "uploads/" });
 
 // 🔥 AUDIO ANALYSIS ENDPOINT 🔥
 app.post("/audio-analysis", upload.single("audio"), async (req, res) => {
-  const filePath = path.join(__dirname, req.file.path);
-  exec(
-    `python server/audio_analysis/analyze_audio.py "${filePath}"`,
-    (err, stdout, stderr) => {
-      fs.unlinkSync(filePath);
-      if (err) return res.status(500).json({ error: stderr });
+  if (!req.file) {
+    console.error("❌ No file received");
+    return res.status(400).json({ error: "No file uploaded" });
+  }
 
-      try {
-        const result = JSON.parse(stdout);
-        res.json(result);
-      } catch (e) {
-        console.error("Failed to parse result", stdout);
-        res.status(500).json({ error: "Invalid output from Python." });
-      }
+  const filePath = path.join(__dirname, req.file.path);
+  exec(`set PYTHONPATH=. && python audio_analysis/analyze_audio.py "${filePath}"`, (err, stdout, stderr) => {
+    fs.unlinkSync(filePath);
+    console.log("📤 STDOUT from Python:", stdout);
+    console.error("🐍 STDERR from Python:", stderr);
+
+    if (err) {
+      console.error("❌ Python execution error:", err.message);
+      return res.status(500).json({ error: stderr || err.message });
     }
-  );
+
+    try {
+      const result = JSON.parse(stdout);
+      res.json(result);
+      console.log("📤 Full Python output:", stdout);
+      console.log("✅ JSON parsed successfully:");
+
+    } catch (e) {
+      console.error("🚨 Failed to parse JSON from Python:", e.message);
+      console.log("⚠️ Raw output:", stdout);
+      res.status(500).json({ error: "Invalid JSON returned by Python script" });
+    }
+  });
 });
+
 
 // 🎭 EMOTION PREDICTION ENDPOINT
 app.post("/predict", upload.single("audio"), (req, res) => {

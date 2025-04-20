@@ -1,6 +1,5 @@
 import librosa
 import speech_recognition as sr
-from termcolor import colored
 
 def audio_to_text(file_path):
     """
@@ -17,7 +16,7 @@ def calculate_wpm(text, duration_seconds):
     Calculates words per minute.
     """
     word_count = len(text.split())
-    duration_minutes = duration_seconds / 60
+    duration_minutes = duration_seconds / 60 if duration_seconds > 0 else 1
     return word_count / duration_minutes
 
 def analyze_speech_speed(audio_path, target_wpm=150, verbose=True):
@@ -36,35 +35,34 @@ def analyze_speech_speed(audio_path, target_wpm=150, verbose=True):
             "transcribed_text": str
         }
     """
-    # Step 1: Transcribe
     try:
         text = audio_to_text(audio_path)
     except Exception as e:
-        print(colored(f"❌ Error transcribing: {e}", 'red'))
-        return None
+        print(f"[Error] Could not transcribe audio: {e}")
+        return {
+            "wpm": 0.0,
+            "duration_sec": 0.0,
+            "transcribed_text": ""
+        }
 
-    # Step 2: Duration
     y, sr = librosa.load(audio_path, sr=None)
-    duration_seconds = len(y) / sr
-
-    # Step 3: WPM calculation
+    duration_seconds = len(y) / sr if sr else 0
     wpm = calculate_wpm(text, duration_seconds)
 
-    # Step 4: Output
     if verbose:
-        print("\n⏱️ Speech Speed Analysis")
+        print("\n[Speech Speed Analysis]")
         print("-" * 30)
-        print(colored(f"🗣️ Transcribed Text:\n{text}\n", 'cyan'))
-        print(f"🕒 Duration: {duration_seconds:.2f} seconds")
-        print(f"📏 Words per Minute (WPM): {wpm:.2f}")
+        print(f"Transcribed Text:\n{text}\n")
+        print(f"Duration        : {duration_seconds:.2f} seconds")
+        print(f"Words per Minute: {wpm:.2f}")
 
-        print("\n🎯 Feedback:")
+        print("Feedback:")
         if wpm < target_wpm - 20:
-            print(colored("⚠️ You are speaking too slowly. Try increasing your pace.", 'yellow'))
+            print("You are speaking slowly. Try increasing your pace.")
         elif wpm > target_wpm + 20:
-            print(colored("⚠️ You are speaking too fast. Slow down to improve clarity.", 'yellow'))
+            print("You are speaking fast. Consider slowing down for clarity.")
         else:
-            print(colored("✅ Your speech pace is optimal!", 'green'))
+            print("Your speaking pace is within an optimal range.")
 
     return {
         "wpm": round(wpm, 2),
@@ -74,5 +72,5 @@ def analyze_speech_speed(audio_path, target_wpm=150, verbose=True):
 
 # ✅ Run standalone for testing
 if __name__ == "__main__":
-    test_path = "./audio_samples/sample.wav"  # Replace with actual file
+    test_path = "./audio_samples/sample.wav"
     analyze_speech_speed(test_path)

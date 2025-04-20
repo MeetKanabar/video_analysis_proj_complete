@@ -1,14 +1,21 @@
 import json
 import os
-from server.audio_analysis.utils.transcription import transcribe_audio
-from server.audio_analysis.utils.filler_words import analyze_filler_words
-from server.audio_analysis.utils.pause_analysis import analyze_pauses
-from server.audio_analysis.utils.speech_speed import analyze_speech_speed
-from server.audio_analysis.utils.energy_level import (
+# Change these imports ⛔
+# from server.audio_analysis.utils.transcription import transcribe_audio
+# from server.audio_analysis.utils.filler_words import analyze_filler_words
+# ...
+
+# To these ✅
+from audio_analysis.utils.transcription import transcribe_audio
+from audio_analysis.utils.filler_words import analyze_filler_words
+from audio_analysis.utils.pause_analysis import analyze_pauses
+from audio_analysis.utils.speech_speed import analyze_speech_speed
+from audio_analysis.utils.energy_level import (
     compute_energy_level, load_audio, analyze_pitch, analyze_loudness
 )
-from server.audio_analysis.plots.audio_features import plot_audio_features
-from server.audio_analysis.llm_helpers.paraphrase import paraphrase_text
+from audio_analysis.plots.audio_features import plot_audio_features
+from audio_analysis.llm_helpers.paraphrase import paraphrase_text
+
 
 
 def analyze_audio_pipeline(audio_path):
@@ -72,18 +79,29 @@ def analyze_audio_pipeline(audio_path):
         )
     }
 
-    # 5. Pitch + Loudness Plot
+   # 5. Pitch + Loudness Plot
     y, sr = load_audio(audio_path)
     pitch_values = analyze_pitch(y, sr)
     rms, time_rms = analyze_loudness(y, sr)
-    avg_pitch = float(sum(pitch_values) / len(pitch_values)) if pitch_values else 0
-    pitch_var = float(max(pitch_values) - min(pitch_values)) if pitch_values else 0
+
+    valid_pitches = [p for p in pitch_values if p > 0]
+    if valid_pitches:
+        avg_pitch = float(sum(valid_pitches) / len(valid_pitches))  # Convert to float
+        pitch_var = float(max(valid_pitches) - min(valid_pitches))  # Convert to float
+    else:
+        avg_pitch = 0.0
+        pitch_var = 0.0
+
     result["pitch"] = {
         "average": round(avg_pitch),
         "variation": round(pitch_var),
         "data": [
-            {"time": round(time_rms[i], 2), "pitch": round(pitch_values[i], 2), "volume": round(rms[i], 3)}
-            for i in range(min(len(pitch_values), len(rms)))
+        {
+            "time": round(float(time_rms[i]), 2),
+            "pitch": round(float(pitch_values[i]), 2) if i < len(pitch_values) else 0,
+            "volume": round(float(rms[i]), 3) if i < len(rms) else 0
+        }
+        for i in range(0, min(len(pitch_values), len(rms)), 100)  # ⬅️ sample every 100 frames
         ],
         "feedback": (
             "Your pitch variation is good. Keep working on expressive delivery."
@@ -93,9 +111,9 @@ def analyze_audio_pipeline(audio_path):
     }
 
     # 6. Paraphrasing
-    paraphrased = paraphrase_text(text)
+    # paraphrased = paraphrase_text(text)
     result["paraphrased"] = {
-        "text": paraphrased or "Paraphrasing failed or no meaningful output returned."
+        "text": "Paraphrasing failed or no meaningful output returned."
     }
 
     # 7. Overall Score (naive version for now)
@@ -104,7 +122,7 @@ def analyze_audio_pipeline(audio_path):
     speech_score = 100 - (filler_penalty * 2 + pause_penalty * 2)
     speech_score = max(min(speech_score, 100), 60)
 
-    result["overallScore"] = speech_score
+    result["overallScore"] = int(speech_score)
     result["overallFeedback"] = (
         "Great clarity and energy! Work a bit on filler reduction and more dynamic pacing."
         if speech_score > 85 else
@@ -114,7 +132,6 @@ def analyze_audio_pipeline(audio_path):
     )
 
     return json.dumps(result, indent=2)
-
 
 if __name__ == "__main__":
     import sys

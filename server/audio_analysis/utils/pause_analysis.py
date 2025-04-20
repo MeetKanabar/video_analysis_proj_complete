@@ -1,4 +1,5 @@
 import librosa
+import sys
 
 def analyze_pauses(audio_path, pause_threshold=0.5, verbose=True):
     """
@@ -45,22 +46,23 @@ def analyze_pauses(audio_path, pause_threshold=0.5, verbose=True):
     }
 
     if verbose:
-        print("\n🧘 Pause Analysis")
+        print("\n[INFO] Pause Analysis", file=sys.stderr)
         print("-" * 30)
-        print(f"🔹 Long Pauses (> {pause_threshold}s): {long_pauses} pauses totaling {total_long_duration:.2f} seconds")
-        print(f"🔸 Short Pauses (<= {pause_threshold}s): {short_pauses} pauses totaling {total_short_duration:.2f} seconds")
-        print("\n🎯 Insights:")
+        print(f"Long Pauses (> {pause_threshold}s): {long_pauses} totaling {total_long_duration:.2f} sec")
+        print(f"Short Pauses (<= {pause_threshold}s): {short_pauses} totaling {total_short_duration:.2f} sec")
+
+        print("\n[Insights]")
         if long_pauses > 5:
-            print("🗣️ Consider reducing long pauses to maintain flow.")
+            print("Consider reducing long pauses to maintain flow.")
         elif short_pauses < 3:
-            print("⏸️ You might benefit from a few well-placed pauses for clarity.")
+            print("You might benefit from more well-placed pauses for clarity.")
         else:
-            print("✅ Good pacing detected.")
+            print("Good pacing detected.")
 
     return result
 
 
-# ✅ Standalone test runner
+# ✅ Test runner
 if __name__ == "__main__":
-    sample_path = "./audio_samples/sample.wav"  # Replace this with your test audio
+    sample_path = "./audio_samples/sample.wav"  # Replace with your own test path
     analyze_pauses(sample_path)

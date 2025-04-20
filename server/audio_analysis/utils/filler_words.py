@@ -1,4 +1,5 @@
 from collections import Counter
+import sys
 
 # 🔹 Common filler words list
 FILLER_WORDS = [
@@ -25,14 +26,14 @@ def analyze_filler_words(text, verbose=True):
     total_fillers = sum(filler_counts.values())
 
     if verbose:
-        print("\n🔍 Filler Word Analysis")
+        print("\n[INFO] Filler Word Analysis", file=sys.stderr)
         print("-" * 30)
         if total_fillers == 0:
-            print("✅ No filler words detected. Great clarity!")
+            print(" No filler words detected. Great clarity!")
         else:
             for word, count in filler_counts.items():
-                print(f"🔸 '{word}': {count} time(s)")
-            print(f"🧮 Total Filler Words: {total_fillers}")
+                print(f" [!] '{word}': {count} time(s)")
+            print(f" Total Filler Words: {total_fillers}")
 
     return {
         "total_fillers": total_fillers,
@@ -47,4 +48,4 @@ if __name__ == "__main__":
         basically it just didn’t work out. Right? I mean, hmm, okay.
     """
     result = analyze_filler_words(sample_text)
-    print("\n📊 Summary:", result)
+    print("\n Summary:", result)

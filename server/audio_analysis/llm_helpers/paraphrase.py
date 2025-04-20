@@ -1,55 +1,55 @@
 import os
-from openai import OpenAI
-import requests
+import sys
+from groq import Groq
 
 # Setup
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
-
-client = OpenAI(
-    base_url="https://api.groq.com/openai/v1",
-    api_key=GROQ_API_KEY,
-)
+client = Groq(api_key=GROQ_API_KEY)
 
 def paraphrase_text(text, model="llama3-8b-8192", temperature=0.7):
     """
     Uses Groq-hosted LLaMA 3 model to paraphrase input text.
+    Returns the full paraphrased string.
     """
     try:
-        print("🔹 Original Text:", text)
-        response = client.chat.completions.create(
+        print(f"🔹 Original Text: {text}", file=sys.stderr)
+
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant that rewrites user input with different structure and vocabulary while keeping the same meaning. Keep it fluent and natural."
+            },
+            {
+                "role": "user",
+                "content": f"Paraphrase this: {text}"
+            }
+        ]
+
+        stream = client.chat.completions.create(
             model=model,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a helpful assistant that rewrites user input with different structure and vocabulary while keeping the same meaning. Keep it fluent and natural."
-                },
-                {"role": "user", "content": f"Paraphrase this: {text}"}
-            ],
+            messages=messages,
             temperature=temperature,
-            max_tokens=256
+            max_tokens=256,
+            top_p=1,
+            stream=True
         )
-        output = response.choices[0].message.content.strip()
-        print("✅ Paraphrased:", output)
-        return output
+
+        final_output = ""
+        for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta:
+                content = chunk.choices[0].delta.content
+                if content:
+                    final_output += content
+
+        return final_output.strip()
 
     except Exception as e:
-        print(f"❌ Paraphrasing failed: {type(e).__name__} - {e}")
+        print(f"❌ Paraphrasing failed: {type(e).__name__} - {e}", file=sys.stderr)
         return None
 
-# Test
+
 if __name__ == "__main__":
-    test = "The weather is great for a walk in the park today."
-    paraphrase_text(test)
-
-
-# import requests
-
-# GROQ_API_KEY = "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"
-# headers = {
-#     "Authorization": f"Bearer {GROQ_API_KEY}"
-# }
-
-# r = requests.get("https://api.groq.com/openai/v1/models", headers=headers)
-# print(r.status_code)
-# print(r.text)
-
+    import json
+    test_input = "The weather is great for a walk in the park today."
+    output = paraphrase_text(test_input)
+    print(json.dumps({ "paraphrased": output }))
