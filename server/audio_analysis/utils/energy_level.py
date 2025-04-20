@@ -58,6 +58,65 @@ def compute_energy_level(audio_file_path, plot=False):
         "energy_level": energy_label
     }
 
+def load_audio(audio_file_path):
+    """
+    Loads the audio file using librosa and returns the waveform and sample rate.
+
+    Args:
+        audio_file_path (str): Path to the .wav file
+
+    Returns:
+        tuple: (waveform np.ndarray, sample rate)
+    """
+    import librosa
+    y, sr = librosa.load(audio_file_path, sr=None)
+    return y, sr
+
+def analyze_pitch(y, sr):
+    """
+    Extracts pitch values using librosa's piptrack.
+
+    Args:
+        y (np.ndarray): Audio signal
+        sr (int): Sample rate
+
+    Returns:
+        list: List of pitch values
+    """
+    import numpy as np
+    import librosa
+
+    pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
+    pitch_values = []
+
+    for t in range(pitches.shape[1]):
+        index = magnitudes[:, t].argmax()
+        pitch = pitches[index, t]
+        if pitch > 0:
+            pitch_values.append(pitch)
+        else:
+            pitch_values.append(np.nan)
+
+    return pitch_values
+
+
+def analyze_loudness(y, sr, hop_length=512):
+    """
+    Computes Root Mean Square (RMS) loudness over time.
+
+    Args:
+        y (np.ndarray): Audio signal
+        sr (int): Sample rate
+        hop_length (int): Frame size
+
+    Returns:
+        tuple: (rms values, time axis)
+    """
+    import librosa
+    rms = librosa.feature.rms(y=y, hop_length=hop_length)[0]
+    time_rms = librosa.times_like(rms, sr=sr, hop_length=hop_length)
+    return rms, time_rms
+
 
 # 🔧 Run directly for testing
 if __name__ == "__main__":
