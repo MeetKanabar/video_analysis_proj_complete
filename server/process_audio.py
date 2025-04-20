@@ -9,6 +9,7 @@ import pickle
 from tensorflow.keras.layers import Conv1D, BatchNormalization, InputLayer
 from sklearn.preprocessing import OneHotEncoder
 import warnings
+import json
 warnings.filterwarnings("ignore")
 
 # Load Model
@@ -20,7 +21,6 @@ custom_objects = {
     "BatchNormalization": BatchNormalization,
     "InputLayer": InputLayer
 }
-
 loaded_model = model_from_json(model_json, custom_objects=custom_objects)
 loaded_model.load_weights("modelRequirements/CNN_model_weights.h5")
 
@@ -38,7 +38,7 @@ def rmse(data, frame_length=2048, hop_length=512):
     return np.squeeze(librosa.feature.rms(y=data, frame_length=frame_length, hop_length=hop_length))
 
 def mfcc(data, sr, flatten=True):
-    mfcc_feat = librosa.feature.mfcc(y=data, sr=sr)  
+    mfcc_feat = librosa.feature.mfcc(y=data, sr=sr)
     return np.ravel(mfcc_feat.T) if flatten else np.squeeze(mfcc_feat.T)
 
 def extract_features(data, sr=22050, frame_length=2048, hop_length=512):
@@ -64,6 +64,7 @@ def predict_emotion(segment_path):
     data, sr = librosa.load(segment_path, sr=None)
     segment_length = 5 * sr  # 5 seconds
     emotions = []
+    time_marker = 0
 
     for start in range(0, len(data), segment_length):
         end = start + segment_length
@@ -73,13 +74,35 @@ def predict_emotion(segment_path):
         features = get_predict_feat(segment, sr)
         predictions = loaded_model.predict(features)
         emotion = encoder2.inverse_transform(predictions)
-        emotions.append(emotion[0][0])
+        emotions.append({
+            "time": int(time_marker),
+            "emotion": emotion[0][0]
+        })
+        time_marker += 5
 
-    return emotions 
+    # Extract primary and secondary emotions
+    all_emotions = [e["emotion"] for e in emotions]
+    counts = {e: all_emotions.count(e) for e in set(all_emotions)}
+    sorted_emotions = sorted(counts.items(), key=lambda x: x[1], reverse=True)
+    primary = sorted_emotions[0][0]
+    secondary = sorted_emotions[1][0] if len(sorted_emotions) > 1 else None
+
+    output = {
+        "primary": primary,
+        "secondary": secondary,
+        "data": emotions,
+        "feedback": f"You maintain a {primary.lower()} tone throughout most of your speech. This helps in audience engagement."
+    }
+
+    return json.dumps({ "emotion": output }, indent=2)
+
 
 if __name__ == "__main__":
-    import sys
-    file_path = sys.argv[1]
-    # # server\03-01-08-01-01-01-01.wav
-    # file_path="03-01-08-01-01-01-01.wav"
-    print(predict_emotion(file_path))  # Output prediction
+    # import sys
+    # if len(sys.argv) < 2:
+    #     print(json.dumps({ "error": "No audio file path provided." }))
+    # else:
+    #     file_path = sys.argv[1]
+    #     print(predict_emotion(file_path))
+    file_path ="output.wav"  # Replace with your file path
+    print(predict_emotion(file_path))
