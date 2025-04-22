@@ -15,7 +15,9 @@ const upload = multer({ dest: "uploads/" });
 // ✅ Helper: Convert recorded audio to proper WAV format
 function convertToWav(inputPath) {
   const outputPath = inputPath + ".wav";
-  execSync(`"${ffmpegPath}" -y -i "${inputPath}" -ar 22050 -ac 1 -f wav "${outputPath}"`);
+  execSync(
+    `"${ffmpegPath}" -y -i "${inputPath}" -ar 22050 -ac 1 -f wav "${outputPath}"`
+  );
   return outputPath;
 }
 
@@ -29,25 +31,30 @@ app.post("/audio-analysis", upload.single("audio"), async (req, res) => {
   const filePath = path.join(__dirname, req.file.path);
   const wavPath = convertToWav(filePath);
 
-  exec(`set PYTHONPATH=. && python audio_analysis/analyze_audio.py "${wavPath}"`, (err, stdout, stderr) => {
-    fs.unlinkSync(filePath);
-    fs.unlinkSync(wavPath);
+  exec(
+    `set PYTHONPATH=. && python audio_analysis/analyze_audio.py "${wavPath}"`,
+    (err, stdout, stderr) => {
+      fs.unlinkSync(filePath);
+      fs.unlinkSync(wavPath);
 
-    if (err) {
-      console.error("❌ Python execution error:", err.message);
-      return res.status(500).json({ error: stderr || err.message });
-    }
+      if (err) {
+        console.error("❌ Python execution error:", err.message);
+        return res.status(500).json({ error: stderr || err.message });
+      }
 
-    try {
-      const result = JSON.parse(stdout);
-      res.json(result);
-      console.log("✅ JSON parsed successfully:");
-    } catch (e) {
-      console.error("🚨 Failed to parse JSON from Python:", e.message);
-      console.log("⚠️ Raw output:", stdout);
-      res.status(500).json({ error: "Invalid JSON returned by Python script" });
+      try {
+        const result = JSON.parse(stdout);
+        res.json(result);
+        console.log("✅ JSON parsed successfully:");
+      } catch (e) {
+        console.error("🚨 Failed to parse JSON from Python:", e.message);
+        console.log("⚠️ Raw output:", stdout);
+        res
+          .status(500)
+          .json({ error: "Invalid JSON returned by Python script" });
+      }
     }
-  });
+  );
 });
 
 // 🎭 EMOTION PREDICTION ENDPOINT
@@ -59,23 +66,27 @@ app.post("/predict", upload.single("audio"), (req, res) => {
   exec(`python process_audio.py "${filePath}"`, (error, stdout, stderr) => {
     fs.unlinkSync(filePath); // Delete after processing
 
+    console.log("🐍 Raw stdout from Python:", stdout); // Log raw stdout for debugging
+
     if (error) {
       console.error("Emotion Python Script Error:", stderr);
       return res.status(500).json({ error: stderr });
     }
 
-    let emotion = stdout
-      .trim()
-      .split("\n")
-      .filter((line) => line.trim())
-      .pop();
+    try {
+      // Extract JSON part from stdout
+      const jsonStartIndex = stdout.indexOf("{");
+      const jsonEndIndex = stdout.lastIndexOf("}");
+      const cleanedOutput = stdout.slice(jsonStartIndex, jsonEndIndex + 1);
 
-    // Simplify some emotion categories
-    if (emotion === "sad" || emotion === "surprise") {
-      emotion = "neutral";
+      const parsed = JSON.parse(cleanedOutput);
+      console.log("✅ Parsed JSON:", parsed);
+      res.json(parsed);
+    } catch (e) {
+      console.error("🚨 Failed to parse JSON from Python:", e.message);
+      console.log("⚠️ Raw output:", stdout);
+      res.status(500).json({ error: "Invalid JSON returned by Python script" });
     }
-
-    return res.json({ emotion });
   });
 });
 

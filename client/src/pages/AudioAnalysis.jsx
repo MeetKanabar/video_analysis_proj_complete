@@ -178,9 +178,11 @@ const AudioAnalysis = () => {
         ...audioAnalysisResults,
         emotion: emotionData,
       };
+      console.log(finalResults);
 
       // Step 4: Set the merged results
       setAnalysisResults(finalResults);
+      console.log("Analysis Results:", analysisResults);
     } catch (error) {
       console.error("Error analyzing audio:", error);
       // Handle error state
@@ -264,10 +266,12 @@ const AudioAnalysis = () => {
 
   // Prepare emotion chart data
   const getEmotionChartData = () => {
-    if (!analysisResults?.emotion?.data) return null;
+    if (!analysisResults?.emotion?.emotion?.data) return null;
 
     const emotions = [
-      ...new Set(analysisResults.emotion.data.map((item) => item.emotion)),
+      ...new Set(
+        analysisResults.emotion.emotion.data.map((item) => item.emotion)
+      ),
     ];
     const emotionIndices = {};
     emotions.forEach((emotion, index) => {
@@ -275,11 +279,13 @@ const AudioAnalysis = () => {
     });
 
     return {
-      labels: analysisResults.emotion.data.map((point) => `${point.time}s`),
+      labels: analysisResults.emotion.emotion.data.map(
+        (point) => `${point.time}s`
+      ),
       datasets: [
         {
           label: "Emotion",
-          data: analysisResults.emotion.data.map(
+          data: analysisResults.emotion.emotion.data.map(
             (point) => emotionIndices[point.emotion]
           ),
           backgroundColor: "rgba(255, 99, 132, 0.8)",
@@ -331,10 +337,12 @@ const AudioAnalysis = () => {
           callback: (value) => {
             const emotions = [
               ...new Set(
-                analysisResults?.emotion?.data.map((item) => item.emotion)
+                analysisResults?.emotion?.emotion?.data.map(
+                  (item) => item.emotion
+                )
               ),
             ];
-            return emotions[value];
+            return emotions[value] || "Unknown";
           },
         },
         title: {
@@ -1072,11 +1080,11 @@ const AudioAnalysis = () => {
                           Primary emotion:
                         </span>
                         <span className="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded-full text-sm font-medium">
-                          {analysisResults.emotion.primary
-                            ? analysisResults.emotion.primary
+                          {analysisResults?.emotion?.emotion?.primary
+                            ? analysisResults.emotion.emotion.primary
                                 .charAt(0)
                                 .toUpperCase() +
-                              analysisResults.emotion.primary.slice(1)
+                              analysisResults.emotion.emotion.primary.slice(1)
                             : "N/A"}
                         </span>
                       </div>
@@ -1089,7 +1097,7 @@ const AudioAnalysis = () => {
                         )}
                       </div>
                       <p className="text-gray-700 dark:text-gray-300">
-                        {analysisResults.emotion.feedback ||
+                        {analysisResults?.emotion?.emotion?.feedback ||
                           "No feedback available."}
                       </p>
                     </div>

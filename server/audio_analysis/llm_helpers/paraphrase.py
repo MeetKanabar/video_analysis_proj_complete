@@ -1,55 +1,57 @@
-import os
+import google.generativeai as genai
 import sys
-from groq import Groq
+import json
+import re
 
-# Setup
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
-client = Groq(api_key=GROQ_API_KEY)
+# Replace with your real API key
+GEMINI_API_KEY = "AIzaSyD0cCbmyhXufYBpdrkjNE5-aaGBFjFKvm0"
+genai.configure(api_key=GEMINI_API_KEY)
 
-def paraphrase_text(text, model="llama3-8b-8192", temperature=0.7):
-    """
-    Uses Groq-hosted LLaMA 3 model to paraphrase input text.
-    Returns the full paraphrased string.
-    """
+
+def clean_and_format(text):
+    # Clean & split only up to 5 lines
+    lines = re.split(r'[\n•*]+\s*', text.strip())
+    lines = [line.strip("-•* ").strip() for line in lines if line.strip()]
+
+    # If it returned a single paragraph with sentences
+    if len(lines) == 1 and lines[0].count('.') >= 5:
+        sentences = re.split(r'\.\s+', lines[0])
+        lines = [s.strip() + "." for s in sentences if s.strip()]
+    
+    lines = lines[:5]  # Cap to 5
+
+    return {
+        "type": "list" if len(lines) > 1 else "single",
+        "options": lines
+    }
+
+
+def paraphrase_text(text):
     try:
         print(f"🔹 Original Text: {text}", file=sys.stderr)
 
-        messages = [
-            {
-                "role": "system",
-                "content": "You are a helpful assistant that rewrites user input with different structure and vocabulary while keeping the same meaning. Keep it fluent and natural."
-            },
-            {
-                "role": "user",
-                "content": f"Paraphrase this: {text}"
-            }
-        ]
+        model = genai.GenerativeModel("gemini-2.0-flash")
 
-        stream = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=temperature,
-            max_tokens=256,
-            top_p=1,
-            stream=True
+        response = model.generate_content(
+            contents=[{"role": "user", "parts": [f"Paraphrase the following text into 5 different short and fluent English sentences. Keep the meaning same but vary the structure and words:\n\n{text}"
+]}],
+            generation_config={
+                "temperature": 0.7,
+                "top_p": 1,
+                "max_output_tokens": 256
+            }
         )
 
-        final_output = ""
-        for chunk in stream:
-            if chunk.choices and chunk.choices[0].delta:
-                content = chunk.choices[0].delta.content
-                if content:
-                    final_output += content
-
-        return final_output.strip()
+        return response.text.strip() if hasattr(response, "text") else "[No output generated]"
 
     except Exception as e:
         print(f"❌ Paraphrasing failed: {type(e).__name__} - {e}", file=sys.stderr)
         return None
 
-
+# Test runner
 if __name__ == "__main__":
-    import json
-    test_input = "The weather is great for a walk in the park today."
-    output = paraphrase_text(test_input)
-    print(json.dumps({ "paraphrased": output }))
+    text = "I am cricket playing and I love it"
+    raw_output = paraphrase_text(text)
+    formatted = clean_and_format(raw_output)
+    print(json.dumps({"paraphrased": formatted}))
+

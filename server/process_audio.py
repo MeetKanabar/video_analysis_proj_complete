@@ -1,3 +1,5 @@
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # Suppress TensorFlow logs
 import numpy as np
 import librosa
 import librosa.display
@@ -10,6 +12,7 @@ from tensorflow.keras.layers import Conv1D, BatchNormalization, InputLayer
 from sklearn.preprocessing import OneHotEncoder
 import warnings
 import json
+import sys
 warnings.filterwarnings("ignore")
 
 # Load Model
@@ -98,11 +101,10 @@ def predict_emotion(segment_path):
 
 
 if __name__ == "__main__":
-    # import sys
-    # if len(sys.argv) < 2:
-    #     print(json.dumps({ "error": "No audio file path provided." }))
-    # else:
-    #     file_path = sys.argv[1]
-    #     print(predict_emotion(file_path))
-    file_path ="output.wav"  # Replace with your file path
-    print(predict_emotion(file_path))
+    try:
+        if len(sys.argv) < 2:
+            raise ValueError("No audio file path provided.")
+        file_path = sys.argv[1]
+        print(predict_emotion(file_path))
+    except Exception as e:
+        print(json.dumps({"error": str(e)}), file=sys.stderr)
