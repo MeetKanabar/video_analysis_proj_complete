@@ -28,13 +28,15 @@ def clean_and_format(text):
 
 def paraphrase_text(text):
     try:
-        print(f"🔹 Original Text: {text}", file=sys.stderr)
-
         model = genai.GenerativeModel("gemini-2.0-flash")
 
+        prompt = (
+            f"Paraphrase the following sentence in 5 different ways. "
+            f"Respond ONLY with the three paraphrased sentences, one per line, without numbers or bullets:\n\n{text}"
+        )
+
         response = model.generate_content(
-            contents=[{"role": "user", "parts": [f"Paraphrase the following text into 5 different short and fluent English sentences. Keep the meaning same but vary the structure and words:\n\n{text}"
-]}],
+            contents=[{"role": "user", "parts": [prompt]}],
             generation_config={
                 "temperature": 0.7,
                 "top_p": 1,
@@ -42,16 +44,25 @@ def paraphrase_text(text):
             }
         )
 
-        return response.text.strip() if hasattr(response, "text") else "[No output generated]"
+        raw_output = response.text.strip()
+
+        # Extract clean lines
+        options = [line.strip() for line in raw_output.split("\n") if line.strip()]
+
+        return {
+            "type": "list" if len(options) > 1 else "single",
+            "options": options
+        }
 
     except Exception as e:
-        print(f"❌ Paraphrasing failed: {type(e).__name__} - {e}", file=sys.stderr)
+        print(f" Paraphrasing failed: {type(e).__name__} - {e}", file=sys.stderr)
         return None
+
 
 # Test runner
 if __name__ == "__main__":
-    text = "I am cricket playing and I love it"
-    raw_output = paraphrase_text(text)
-    formatted = clean_and_format(raw_output)
-    print(json.dumps({"paraphrased": formatted}))
+    text = "My name is Naomi. I am a software engineer. I love coding and solving problems."
+    result = paraphrase_text(text)
+    print(json.dumps({"paraphrased": result}))
+
 

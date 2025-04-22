@@ -178,10 +178,9 @@ const AudioAnalysis = () => {
         ...audioAnalysisResults,
         emotion: emotionData,
       };
-      console.log(finalResults);
 
       // Step 4: Set the merged results
-      setAnalysisResults(finalResults);
+      await setAnalysisResults(finalResults);
       console.log("Analysis Results:", analysisResults);
     } catch (error) {
       console.error("Error analyzing audio:", error);
@@ -707,8 +706,8 @@ const AudioAnalysis = () => {
                         />
                         <text
                           x="18"
-                          y="20.35"
-                          className="fill-current text-gray-800 dark:text-gray-200 font-bold text-5xl"
+                          y="23.35"
+                          className="fill-current text-gray-800 dark:text-gray-200 font-bold text-small"
                           textAnchor="middle"
                         >
                           {analysisResults.overallScore}
@@ -829,18 +828,23 @@ const AudioAnalysis = () => {
                             className={`h-full ${
                               analysisResults.speed.wpm < 120
                                 ? "bg-yellow-500"
-                                : analysisResults.speed.wpm > 160
-                                ? "bg-red-500"
-                                : "bg-green-500"
+                                : analysisResults.speed.wpm <= 180
+                                ? "bg-green-500"
+                                : "bg-red-500"
                             }`}
                             style={{
                               width: `${Math.min(
                                 100,
-                                (analysisResults.speed.wpm / 200) * 100
+                                Math.max(
+                                  0,
+                                  ((analysisResults.speed.wpm - 100) / 100) *
+                                    100
+                                )
                               )}%`,
                             }}
                           ></div>
                         </div>
+
                         <div className="flex justify-between mt-1">
                           <span className="text-xs text-gray-500 dark:text-gray-400">
                             100 WPM
@@ -1130,15 +1134,27 @@ const AudioAnalysis = () => {
                   {expandedSections.paraphrased && (
                     <div className="px-6 pb-6">
                       <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                        <p className="text-gray-700 dark:text-gray-300 italic">
-                          {analysisResults.paraphrased.text}
-                        </p>
+                        {analysisResults?.paraphrased?.options?.length > 0 ? (
+                          <ul className="list-disc pl-5 text-gray-700 dark:text-gray-300">
+                            {analysisResults.paraphrased.options.map(
+                              (option, index) => (
+                                <li key={index} className="mb-2 italic">
+                                  {option}
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        ) : (
+                          <p className="text-gray-700 dark:text-gray-300 italic">
+                            No paraphrased options available.
+                          </p>
+                        )}
                       </div>
                       <div className="mt-4 flex items-start gap-2">
                         <AlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          This is a concise, polished version of your speech
-                          with filler words removed and clarity improved.
+                          These are alternative ways to express your speech with
+                          improved clarity and structure.
                         </p>
                       </div>
                     </div>
