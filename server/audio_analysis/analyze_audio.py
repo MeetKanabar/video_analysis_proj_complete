@@ -11,11 +11,12 @@ from audio_analysis.utils.energy_level import (
 from audio_analysis.plots.audio_features import plot_audio_features
 from audio_analysis.llm_helpers.paraphrase import paraphrase_text
 import numpy as np
-
-
+from audio_analysis.llm_helpers.generate_feedback import generate_structured_feedback
 
 def analyze_audio_pipeline(audio_path):
     result = {}
+
+    
 
     # 1. Transcription
     text = transcribe_audio(audio_path)
@@ -162,6 +163,11 @@ def analyze_audio_pipeline(audio_path):
         if score > 70 else
         "Keep practicing! Work on pacing, reducing fillers, and adding vocal variety."
     )
+
+    # 0. Feedback Generation
+    feedback = generate_structured_feedback(result)
+    if feedback:
+        result["section_feedback"] = feedback
 
 
     return json.dumps(result, indent=2)

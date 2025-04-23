@@ -1,0 +1,85 @@
+{
+    "transcription": {
+      "text": "Naman Surana I am from DJ Sangvi",
+      "fillerWords": {}
+    },
+    "pauses": {
+      "count": 1,
+      "shortPauses": 1,
+      "longPauses": 0,
+      "feedback": "You have a good balance of pauses. Consider adding more strategic pauses before key points for emphasis."
+    },
+    "speed": {
+      "wpm": 84.13,
+      "assessment": "slow",
+      "feedback": "You're speaking a bit slow. Speeding up could enhance engagement."
+    },
+    "energy": {
+      "level": "moderate energy",
+      "variation": "medium",
+      "averageRMS": 0.03581,
+      "feedback": "Your energy level is consistent. Try modulating tone for key points."
+    },
+    "pitch": {
+      "average": 873,
+      "variation": 3435,
+      "data": [
+        {
+          "time": 0.0,
+          "pitch": 857.19,
+          "volume": 0.0
+        },
+        {
+          "time": 0.58,
+          "pitch": 2662.37,
+          "volume": 0.0
+        },
+        {
+          "time": 1.16,
+          "pitch": 635.36,
+          "volume": 0.071
+        },
+        {
+          "time": 1.74,
+          "pitch": 212.2,
+          "volume": 0.039
+        },
+        {
+          "time": 2.32,
+          "pitch": 217.69,
+          "volume": 0.063
+        },
+        {
+          "time": 2.9,
+          "pitch": 225.87,
+          "volume": 0.116
+        },
+        {
+          "time": 3.48,
+          "pitch": 347.42,
+          "volume": 0.12
+        },
+        {
+          "time": 4.06,
+          "pitch": 634.97,
+          "volume": 0.0
+        },
+        {
+          "time": 4.64,
+          "pitch": 354.5,
+          "volume": 0.0
+        }
+      ],
+      "feedback": "Your pitch is quite high \u2014 consider softening your tone. You're using good pitch variation. That\u2019s great for engagement!"
+    },
+    "paraphrased": {
+      "type": "list",
+      "options": [
+        "My name is Naman Surana, and I hail from DJ Sangvi.",
+        "I am Naman Surana, a DJ Sangvi native.",
+        "Naman Surana, of DJ Sangvi, speaking."
+      ]
+    },
+    "overallScore": 100,
+    "overallFeedback": "Outstanding delivery with strong vocal energy and clarity!"
+  }
