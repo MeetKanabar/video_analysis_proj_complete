@@ -63,10 +63,11 @@ def analyze_audio_pipeline(audio_path):
     result["energy"] = {
         "level": level.lower(),
         "variation": (
-            "low" if energy["pitch_variation"] < 20 else
-            "high" if energy["pitch_variation"] > 40 else
-            "medium"
+        "low" if energy["pitch_variation"] <= 40 else  # Adjusted threshold
+        "high" if energy["pitch_variation"] > 120 else  # Adjusted threshold
+        "medium"
         ),
+        "averageRMS": round(energy["avg_rms"], 5),
         "feedback": (
             "Your energy level is consistent. Try modulating tone for key points."
             if level == "Moderate Energy" else
@@ -97,14 +98,26 @@ def analyze_audio_pipeline(audio_path):
             "pitch": 0 if i >= len(pitch_values) or np.isnan(pitch_values[i]) else round(float(pitch_values[i]), 2),
             "volume": round(float(rms[i]), 3) if i < len(rms) else 0
         }
-        for i in range(0, min(len(pitch_values), len(rms)), 100)  # sample every 100 frames
-        ],
-        "feedback": (
-            "Your pitch variation is good. Keep working on expressive delivery."
-            if pitch_var > 25 else
-            "Try varying your pitch more to make your speech more dynamic."
-        )
+        for i in range(0, min(len(pitch_values), len(rms)), 25)  # sample every 100 frames
+        ]
     }
+
+    # Feedback based on pitch variation and average pitch
+    pitch_feedback = []
+
+    if avg_pitch < 100:
+        pitch_feedback.append("Your pitch is on the lower side — you may sound calm or flat.")
+    elif avg_pitch > 300:
+        pitch_feedback.append("Your pitch is quite high — consider softening your tone.")
+
+    if pitch_var < 30:
+        pitch_feedback.append("Try adding more vocal variety to avoid sounding monotone.")
+    elif pitch_var > 100:
+        pitch_feedback.append("You're using good pitch variation. That’s great for engagement!")
+
+    result["pitch"]["feedback"] = " ".join(pitch_feedback)
+
+    
 
     # 6. Paraphrasing
     paraphrased_result = paraphrase_text(text)
@@ -121,20 +134,35 @@ def analyze_audio_pipeline(audio_path):
 
 
 
-    # 7. Overall Score (naive version for now)
-    filler_penalty = len(result["transcription"]["fillerWords"])
+    # 7. Revised Overall Score Calculation (Weighted Composite)
+    filler_penalty = sum(result["transcription"]["fillerWords"].values())
     pause_penalty = result["pauses"]["longPauses"]
-    speech_score = 100 - (filler_penalty * 2 + pause_penalty * 2)
-    speech_score = max(min(speech_score, 100), 60)
+    speed_score = 1 if result["speed"]["assessment"] == "moderate" else 0
+    energy_score = 1 if result["energy"]["level"] == "moderate energy" else 2 if result["energy"]["level"] == "high energy" else 0
+    pitch_score = 1 if result["pitch"]["variation"] > 40 else 0
+    emotion_bonus = 2 if result.get("emotion", {}).get("emotion", {}).get("primary") in ["happy", "surprise"] else 0
 
-    result["overallScore"] = int(speech_score)
+    # Weighted scoring
+    score = 100
+    score -= filler_penalty * 1.5       # Mild penalty per filler
+    score -= pause_penalty * 2          # Stronger penalty for excessive long pauses
+    score += speed_score * 5
+    score += energy_score * 5
+    score += pitch_score * 5
+    score += emotion_bonus * 3
+
+    # Clamp score to 60–100
+    score = int(max(min(score, 100), 60))
+
+    result["overallScore"] = score
     result["overallFeedback"] = (
-        "Great clarity and energy! Work a bit on filler reduction and more dynamic pacing."
-        if speech_score > 85 else
-        "Solid delivery. Aim to reduce filler words and improve tonal variety."
-        if speech_score > 70 else
-        "You're on the right track! Try reducing fillers and increasing pitch variation for engagement."
+        "Outstanding delivery with strong vocal energy and clarity!"
+        if score > 85 else
+        "Good delivery. Focus on reducing fillers and maintaining pitch variety."
+        if score > 70 else
+        "Keep practicing! Work on pacing, reducing fillers, and adding vocal variety."
     )
+
 
     return json.dumps(result, indent=2)
 

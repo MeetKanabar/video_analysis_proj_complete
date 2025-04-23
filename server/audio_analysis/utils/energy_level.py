@@ -26,22 +26,25 @@ def compute_energy_level(audio_file_path, plot=False):
     avg_rms = float(np.mean(rms))
     print(f"[INFO] Average RMS Energy: {avg_rms:.5f}", file=sys.stderr)
 
-    # Step 3: Compute pitch variation
+   # Step 3: Compute pitch variation
     pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-    pitch_values = pitches[magnitudes > np.median(magnitudes)]
-    pitch_values = pitch_values[pitch_values > 0]
 
+    # Filter pitch values for valid human speech range
+    pitch_values = pitches[magnitudes > np.median(magnitudes)]  # Filter by magnitude
+    pitch_values = pitch_values[(pitch_values > 80) & (pitch_values < 500)]  # Filter by frequency range
+
+    # Calculate standard deviation of filtered pitch values
     if len(pitch_values) == 0:
         pitch_std = 0.0
     else:
-        pitch_std = float(np.nanstd(pitch_values))
+        pitch_std = float(np.nanstd(pitch_values))  # Standard deviation
 
     print(f"[INFO] Pitch Variation (std dev): {pitch_std:.2f}", file=sys.stderr)
 
     # Step 4: Classify energy level
-    if avg_rms > 0.04 and pitch_std > 30:
+    if avg_rms >= 0.045 and pitch_std >= 120:
         energy_label = "High Energy"
-    elif avg_rms < 0.015:
+    elif avg_rms <= 0.02 and pitch_std <= 40:
         energy_label = "Low Energy"
     else:
         energy_label = "Moderate Energy"
@@ -122,7 +125,9 @@ def analyze_loudness(y, sr, hop_length=512):
 
 # 🔧 Run directly for debug/plotting
 if __name__ == "__main__":
-    sample_path = "./plots/output.wav"
+    # sample_path = "c:/IPD Project/server/output.wav"  # Absolute path
+
+    sample_path = "./output.wav"  # Relative path (if the file is in the same directory as the script)
     results = compute_energy_level(sample_path, plot=True)
 
     print("\n Final Energy Metrics:", file=sys.stderr)

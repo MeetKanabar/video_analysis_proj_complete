@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback,useEffect} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ReactMic } from "react-mic";
 import { Line, Bar } from "react-chartjs-2";
@@ -58,6 +58,7 @@ const AudioAnalysis = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResults, setAnalysisResults] = useState(null);
+  const [progress, setProgress] = useState(0);
   const [expandedSections, setExpandedSections] = useState({
     transcription: true,
     speed: true,
@@ -68,7 +69,27 @@ const AudioAnalysis = () => {
     paraphrased: true,
   });
   const audioRef = useRef(null);
+  const requestRef = useRef();
 
+  useEffect(() => {
+    const updateProgress = () => {
+      if (audioRef.current && audioRef.current.duration) {
+        const percent =
+          (audioRef.current.currentTime / audioRef.current.duration) * 100;
+        setProgress(percent);
+      }
+      requestRef.current = requestAnimationFrame(updateProgress);
+    };
+  
+    if (isPlaying) {
+      requestRef.current = requestAnimationFrame(updateProgress);
+    } else {
+      cancelAnimationFrame(requestRef.current);
+    }
+  
+    return () => cancelAnimationFrame(requestRef.current);
+  }, [isPlaying]);
+  
   // Handle file upload
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -180,8 +201,11 @@ const AudioAnalysis = () => {
       };
 
       // Step 4: Set the merged results
-      await setAnalysisResults(finalResults);
-      console.log("Analysis Results:", analysisResults);
+      setAnalysisResults(finalResults);
+      //print after 2 secs the results
+      setTimeout(() => {
+        console.log("Final Analysis Results:", finalResults);
+      }, 2000);
     } catch (error) {
       console.error("Error analyzing audio:", error);
       // Handle error state
@@ -263,39 +287,6 @@ const AudioAnalysis = () => {
     };
   };
 
-  // Prepare emotion chart data
-  const getEmotionChartData = () => {
-    if (!analysisResults?.emotion?.emotion?.data) return null;
-
-    const emotions = [
-      ...new Set(
-        analysisResults.emotion.emotion.data.map((item) => item.emotion)
-      ),
-    ];
-    const emotionIndices = {};
-    emotions.forEach((emotion, index) => {
-      emotionIndices[emotion] = index;
-    });
-
-    return {
-      labels: analysisResults.emotion.emotion.data.map(
-        (point) => `${point.time}s`
-      ),
-      datasets: [
-        {
-          label: "Emotion",
-          data: analysisResults.emotion.emotion.data.map(
-            (point) => emotionIndices[point.emotion]
-          ),
-          backgroundColor: "rgba(255, 99, 132, 0.8)",
-          borderColor: "rgba(255, 99, 132, 1)",
-          borderWidth: 1,
-        },
-      ],
-    };
-  };
-
-  // Chart options
   const pitchChartOptions = {
     responsive: true,
     interaction: {
@@ -326,22 +317,48 @@ const AudioAnalysis = () => {
       },
     },
   };
+  // Prepare emotion chart data
+  // Mapping emotion to simplified scores
+  const mapEmotionScore = (emotion) => {
+    if (["happy", "surprise"].includes(emotion.toLowerCase())) return 1;
+    if (["angry", "sad", "fear", "disgust"].includes(emotion.toLowerCase()))
+      return -1;
+    return 0;
+  };
+
+  // Build chart data from emotion.emotion.data
+  const getEmotionChartData = () => {
+    const emotionData = analysisResults.emotion.emotion.data;
+
+    return {
+      labels: emotionData.map((point) => `${point.time}s`),
+      datasets: [
+        {
+          label: "Emotion Polarity",
+          data: emotionData.map((point) => mapEmotionScore(point.emotion)),
+          borderColor: "#22c55e",
+          backgroundColor: "rgba(34,197,94,0.2)",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+        },
+      ],
+    };
+  };
 
   const emotionChartOptions = {
     responsive: true,
     scales: {
       y: {
-        beginAtZero: true,
+        min: -1,
+        max: 1,
         ticks: {
-          callback: (value) => {
-            const emotions = [
-              ...new Set(
-                analysisResults?.emotion?.emotion?.data.map(
-                  (item) => item.emotion
-                )
-              ),
-            ];
-            return emotions[value] || "Unknown";
+          stepSize: 1,
+          callback: (val) => {
+            if (val === 1) return "Positive";
+            if (val === 0) return "Neutral";
+            if (val === -1) return "Negative";
+            return "";
           },
         },
         title: {
@@ -352,8 +369,21 @@ const AudioAnalysis = () => {
       x: {
         title: {
           display: true,
-          text: "Time (seconds)",
+          text: "Time (s)",
         },
+      },
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const raw = analysisResults.emotion.emotion.data[ctx.dataIndex];
+            return `Time: ${raw.time}s — Emotion: ${raw.emotion}`;
+          },
+        },
+      },
+      legend: {
+        display: true,
       },
     },
   };
@@ -590,13 +620,7 @@ const AudioAnalysis = () => {
                       <div
                         className="bg-blue-600 h-2 rounded-full"
                         style={{
-                          width: audioRef.current
-                            ? `${
-                                (audioRef.current.currentTime /
-                                  audioRef.current.duration) *
-                                100
-                              }%`
-                            : "0%",
+                          width: `${progress}%`,
                         }}
                       ></div>
                     </div>
@@ -955,6 +979,7 @@ const AudioAnalysis = () => {
                   </div>
                   {expandedSections.energy && (
                     <div className="px-6 pb-6">
+                      {/* Energy Level */}
                       <div className="flex items-center gap-4 mb-4">
                         <span className="text-gray-700 dark:text-gray-300">
                           Energy level:
@@ -970,6 +995,8 @@ const AudioAnalysis = () => {
                             analysisResults.energy.level.slice(1)}
                         </span>
                       </div>
+
+                      {/* Energy Variation */}
                       <div className="flex items-center gap-4 mb-4">
                         <span className="text-gray-700 dark:text-gray-300">
                           Energy variation:
@@ -989,6 +1016,18 @@ const AudioAnalysis = () => {
                             analysisResults.energy.variation.slice(1)}
                         </span>
                       </div>
+
+                      {/* Average RMS */}
+                      <div className="flex items-center gap-4 mb-4">
+                        <span className="text-gray-700 dark:text-gray-300">
+                          Average RMS:
+                        </span>
+                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
+                          {analysisResults.energy.averageRMS}
+                        </span>
+                      </div>
+
+                      {/* Feedback */}
                       <p className="text-gray-700 dark:text-gray-300">
                         {analysisResults.energy.feedback}
                       </p>
@@ -1021,7 +1060,7 @@ const AudioAnalysis = () => {
                   </div>
                   {expandedSections.pitch && (
                     <div className="px-6 pb-6">
-                      <div className="mb-6 bg-white dark:bg-gray-700 p-4 rounded-lg">
+                      <div className="mb-6 bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
                         {getPitchChartData() && (
                           <Line
                             data={getPitchChartData()}
@@ -1029,27 +1068,45 @@ const AudioAnalysis = () => {
                           />
                         )}
                       </div>
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg shadow-sm">
                           <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                            Average Pitch
+                            🎯 Average Pitch
                           </p>
                           <p className="text-2xl font-bold text-gray-900 dark:text-white">
                             {analysisResults.pitch.average} Hz
                           </p>
                         </div>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg shadow-sm">
                           <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                            Pitch Variation
+                            🎭 Pitch Variation
                           </p>
                           <p className="text-2xl font-bold text-gray-900 dark:text-white">
                             ±{analysisResults.pitch.variation} Hz
                           </p>
                         </div>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        {analysisResults.pitch.feedback}
-                      </p>
+
+                      {/* 💬 Feedback */}
+                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 font-semibold">
+                          🎙️ Feedback
+                        </p>
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {analysisResults.pitch.feedback}
+                        </p>
+                      </div>
+
+                      {/* ℹ️ Info (optional) */}
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+                        <p>
+                          <strong>Tip:</strong> A higher average pitch can sound
+                          more enthusiastic, while good pitch variation keeps
+                          your voice engaging. The graph above shows how your
+                          pitch changed over time.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </motion.div>
@@ -1077,32 +1134,26 @@ const AudioAnalysis = () => {
                       <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     )}
                   </div>
-                  {expandedSections.emotion && analysisResults?.emotion && (
+                  {expandedSections.emotion && (
                     <div className="px-6 pb-6">
-                      <div className="flex items-center gap-4 mb-4">
-                        <span className="text-gray-700 dark:text-gray-300">
-                          Primary emotion:
-                        </span>
-                        <span className="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded-full text-sm font-medium">
-                          {analysisResults?.emotion?.emotion?.primary
-                            ? analysisResults.emotion.emotion.primary
-                                .charAt(0)
-                                .toUpperCase() +
-                              analysisResults.emotion.emotion.primary.slice(1)
-                            : "N/A"}
-                        </span>
-                      </div>
-                      <div className="mb-6 bg-white dark:bg-gray-700 p-4 rounded-lg">
-                        {getEmotionChartData() && (
-                          <Bar
-                            data={getEmotionChartData()}
-                            options={emotionChartOptions}
-                          />
-                        )}
+                      <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+                        Emotion Timeline
+                      </h2>
+                      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg mb-4">
+                        <Line
+                          data={getEmotionChartData()}
+                          options={emotionChartOptions}
+                        />
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 italic">
+                          This chart maps your emotions across time. Higher
+                          values represent positive emotions (e.g., happy,
+                          surprise), lower values indicate negative emotions
+                          (e.g., angry, sad). Aim for variation but avoid
+                          prolonged negativity unless intentional.
+                        </p>
                       </div>
                       <p className="text-gray-700 dark:text-gray-300">
-                        {analysisResults?.emotion?.emotion?.feedback ||
-                          "No feedback available."}
+                        {analysisResults.emotion.emotion.feedback}
                       </p>
                     </div>
                   )}

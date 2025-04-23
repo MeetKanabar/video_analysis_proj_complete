@@ -94,7 +94,7 @@ def predict_emotion(segment_path):
         "primary": primary,
         "secondary": secondary,
         "data": emotions,
-        "feedback": f"You maintain a {primary.lower()} tone throughout most of your speech. This helps in audience engagement."
+        "feedback": f"You maintain a {primary.lower()} tone across most of your speech. This typically reflects {'positive energy' if primary in ['happy', 'surprise'] else 'neutral control' if primary == 'neutral' else 'a need to soften your delivery'}. Use the emotion chart below to reflect on your expressive shifts throughout the talk."
     }
 
     return json.dumps({ "emotion": output }, indent=2)
