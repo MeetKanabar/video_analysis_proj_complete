@@ -810,6 +810,7 @@ const AudioAnalysis = () => {
                       {/* Add Feedback */}
                       <div className="mt-4">
                         <p className="text-gray-700 dark:text-gray-300">
+                          💡Smart Suggestion :{" "}
                           {
                             analysisResults.section_feedback
                               .transcription_feedback
@@ -900,12 +901,11 @@ const AudioAnalysis = () => {
                           {analysisResults.speed.wpm} WPM
                         </span>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        {analysisResults.speed.feedback}
-                      </p>
+
                       {/* Add Feedback */}
                       <div className="mt-4">
                         <p className="text-gray-700 dark:text-gray-300">
+                          💡Smart Suggestion :{" "}
                           {analysisResults.section_feedback.speed_feedback}
                         </p>
                       </div>
@@ -965,12 +965,11 @@ const AudioAnalysis = () => {
                           </p>
                         </div>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        {analysisResults.pauses.feedback}
-                      </p>
+
                       {/* Add Feedback */}
                       <div className="mt-4">
                         <p className="text-gray-700 dark:text-gray-300">
+                          💡Smart Suggestion :{" "}
                           {analysisResults.section_feedback.pause_feedback}
                         </p>
                       </div>
@@ -1052,13 +1051,10 @@ const AudioAnalysis = () => {
                         </span>
                       </div>
 
-                      {/* Feedback */}
-                      <p className="text-gray-700 dark:text-gray-300">
-                        {analysisResults.energy.feedback}
-                      </p>
                       {/* Add Feedback */}
                       <div className="mt-4">
                         <p className="text-gray-700 dark:text-gray-300">
+                          💡Smart Suggestion :{" "}
                           {analysisResults.section_feedback.energy_feedback}
                         </p>
                       </div>
@@ -1119,19 +1115,10 @@ const AudioAnalysis = () => {
                         </div>
                       </div>
 
-                      {/* 💬 Feedback */}
-                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 font-semibold">
-                          🎙️ Feedback
-                        </p>
-                        <p className="text-gray-700 dark:text-gray-300">
-                          {analysisResults.pitch.feedback}
-                        </p>
-                      </div>
-
                       {/* Add Section Feedback */}
                       <div className="mt-4">
                         <p className="text-gray-700 dark:text-gray-300">
+                          💡Smart Suggestion :{" "}
                           {analysisResults.section_feedback.pitch_feedback}
                         </p>
                       </div>
@@ -1190,12 +1177,11 @@ const AudioAnalysis = () => {
                           prolonged negativity unless intentional.
                         </p>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        {analysisResults.emotion.emotion.feedback}
-                      </p>
+                      
                       {/* Add Feedback */}
                       <div className="mt-4">
                         <p className="text-gray-700 dark:text-gray-300">
+                          💡Smart Suggestion :{" "}
                           {analysisResults.section_feedback.emotion_feedback}
                         </p>
                       </div>
