@@ -32,7 +32,7 @@ def paraphrase_text(text):
 
         prompt = (
             f"Paraphrase the following sentence in 5 different ways. "
-            f"Respond ONLY with the three paraphrased sentences, one per line, without numbers or bullets:\n\n{text}"
+            f"Respond ONLY with the fiveraphrased sentences, one per line, without numbers or bullets:\n\n{text}"
         )
 
         response = model.generate_content(
