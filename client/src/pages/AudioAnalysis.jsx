@@ -915,230 +915,239 @@ const AudioAnalysis = () => {
 
                 {/* Pauses Section */}
                 {/* Pauses Section */}
-<motion.div
-  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
-  variants={itemVariants}
->
-  <div
-    className="flex items-center justify-between p-6 cursor-pointer"
-    onClick={() => toggleSection("pauses")}
-  >
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-        <Clock className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-      </div>
-      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-        Pause Analysis
-      </h3>
-    </div>
-    {expandedSections.pauses ? (
-      <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-    ) : (
-      <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-    )}
-  </div>
-  {expandedSections.pauses && (
-    <div className="px-6 pb-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Total Pauses
-          </p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            {analysisResults.pauses.count}
-          </p>
-        </div>
-        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Short Pauses
-          </p>
-          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-            {analysisResults.pauses.shortPauses}
-          </p>
-        </div>
-        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            Long Pauses
-          </p>
-          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-            {analysisResults.pauses.longPauses}
-          </p>
-        </div>
-      </div>
-      <p className="text-gray-700 dark:text-gray-300">
-        {analysisResults.pauses.feedback}
-      </p>
-      {/* Add Feedback */}
-      <div className="mt-4">
-        <p className="text-gray-700 dark:text-gray-300">
-          {analysisResults.section_feedback.pause_feedback}
-        </p>
-      </div>
-    </div>
-  )}
-</motion.div>
+                <motion.div
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+                  variants={itemVariants}
+                >
+                  <div
+                    className="flex items-center justify-between p-6 cursor-pointer"
+                    onClick={() => toggleSection("pauses")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                        <Clock className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                        Pause Analysis
+                      </h3>
+                    </div>
+                    {expandedSections.pauses ? (
+                      <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    )}
+                  </div>
+                  {expandedSections.pauses && (
+                    <div className="px-6 pb-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg text-center">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            Total Pauses
+                          </p>
+                          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                            {analysisResults.pauses.count}
+                          </p>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg text-center">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            Short Pauses
+                          </p>
+                          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            {analysisResults.pauses.shortPauses}
+                          </p>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg text-center">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            Long Pauses
+                          </p>
+                          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                            {analysisResults.pauses.longPauses}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-gray-700 dark:text-gray-300">
+                        {analysisResults.pauses.feedback}
+                      </p>
+                      {/* Add Feedback */}
+                      <div className="mt-4">
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {analysisResults.section_feedback.pause_feedback}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
 
                 {/* Energy Level Section */}
-               {/* Energy Level Section */}
-<motion.div
-  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
-  variants={itemVariants}
->
-  <div
-    className="flex items-center justify-between p-6 cursor-pointer"
-    onClick={() => toggleSection("energy")}
-  >
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-        <Volume2 className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-      </div>
-      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-        Energy Level
-      </h3>
-    </div>
-    {expandedSections.energy ? (
-      <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-    ) : (
-      <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-    )}
-  </div>
-  {expandedSections.energy && (
-    <div className="px-6 pb-6">
-      {/* Energy Level */}
-      <div className="flex items-center gap-4 mb-4">
-        <span className="text-gray-700 dark:text-gray-300">Energy level:</span>
-        <span
-          className={`px-3 py-1 rounded-full text-sm font-medium ${getEnergyColor(
-            analysisResults.energy.level
-          )}`}
-        >
-          {analysisResults.energy.level
-            .charAt(0)
-            .toUpperCase() + analysisResults.energy.level.slice(1)}
-        </span>
-      </div>
+                {/* Energy Level Section */}
+                <motion.div
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+                  variants={itemVariants}
+                >
+                  <div
+                    className="flex items-center justify-between p-6 cursor-pointer"
+                    onClick={() => toggleSection("energy")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                        <Volume2 className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                        Energy Level
+                      </h3>
+                    </div>
+                    {expandedSections.energy ? (
+                      <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    )}
+                  </div>
+                  {expandedSections.energy && (
+                    <div className="px-6 pb-6">
+                      {/* Energy Level */}
+                      <div className="flex items-center gap-4 mb-4">
+                        <span className="text-gray-700 dark:text-gray-300">
+                          Energy level:
+                        </span>
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${getEnergyColor(
+                            analysisResults.energy.level
+                          )}`}
+                        >
+                          {analysisResults.energy.level
+                            .charAt(0)
+                            .toUpperCase() +
+                            analysisResults.energy.level.slice(1)}
+                        </span>
+                      </div>
 
-      {/* Energy Variation */}
-      <div className="flex items-center gap-4 mb-4">
-        <span className="text-gray-700 dark:text-gray-300">
-          Energy variation:
-        </span>
-        <span
-          className={`px-3 py-1 rounded-full text-sm font-medium ${
-            analysisResults.energy.variation === "high"
-              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-              : analysisResults.energy.variation === "medium"
-              ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-          }`}
-        >
-          {analysisResults.energy.variation
-            .charAt(0)
-            .toUpperCase() + analysisResults.energy.variation.slice(1)}
-        </span>
-      </div>
+                      {/* Energy Variation */}
+                      <div className="flex items-center gap-4 mb-4">
+                        <span className="text-gray-700 dark:text-gray-300">
+                          Energy variation:
+                        </span>
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            analysisResults.energy.variation === "high"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                              : analysisResults.energy.variation === "medium"
+                              ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                          }`}
+                        >
+                          {analysisResults.energy.variation
+                            .charAt(0)
+                            .toUpperCase() +
+                            analysisResults.energy.variation.slice(1)}
+                        </span>
+                      </div>
 
-      {/* Average RMS */}
-      <div className="flex items-center gap-4 mb-4">
-        <span className="text-gray-700 dark:text-gray-300">Average RMS:</span>
-        <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
-          {analysisResults.energy.averageRMS}
-        </span>
-      </div>
+                      {/* Average RMS */}
+                      <div className="flex items-center gap-4 mb-4">
+                        <span className="text-gray-700 dark:text-gray-300">
+                          Average RMS:
+                        </span>
+                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
+                          {analysisResults.energy.averageRMS}
+                        </span>
+                      </div>
 
-      {/* Feedback */}
-      <p className="text-gray-700 dark:text-gray-300">
-        {analysisResults.energy.feedback}
-      </p>
-      {/* Add Feedback */}
-      <div className="mt-4">
-        <p className="text-gray-700 dark:text-gray-300">
-          {analysisResults.section_feedback.energy_feedback}
-        </p>
-      </div>
-    </div>
-  )}
-</motion.div>
+                      {/* Feedback */}
+                      <p className="text-gray-700 dark:text-gray-300">
+                        {analysisResults.energy.feedback}
+                      </p>
+                      {/* Add Feedback */}
+                      <div className="mt-4">
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {analysisResults.section_feedback.energy_feedback}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
 
                 {/* Pitch & Loudness Section */}
-<motion.div
-  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
-  variants={itemVariants}
->
-  <div
-    className="flex items-center justify-between p-6 cursor-pointer"
-    onClick={() => toggleSection("pitch")}
-  >
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-        <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
-      </div>
-      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-        Pitch & Loudness
-      </h3>
-    </div>
-    {expandedSections.pitch ? (
-      <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-    ) : (
-      <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-    )}
-  </div>
-  {expandedSections.pitch && (
-    <div className="px-6 pb-6">
-      <div className="mb-6 bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
-        {getPitchChartData() && (
-          <Line
-            data={getPitchChartData()}
-            options={pitchChartOptions}
-          />
-        )}
-      </div>
+                <motion.div
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+                  variants={itemVariants}
+                >
+                  <div
+                    className="flex items-center justify-between p-6 cursor-pointer"
+                    onClick={() => toggleSection("pitch")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                        <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                        Pitch & Loudness
+                      </h3>
+                    </div>
+                    {expandedSections.pitch ? (
+                      <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    )}
+                  </div>
+                  {expandedSections.pitch && (
+                    <div className="px-6 pb-6">
+                      <div className="mb-6 bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                        {getPitchChartData() && (
+                          <Line
+                            data={getPitchChartData()}
+                            options={pitchChartOptions}
+                          />
+                        )}
+                      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg shadow-sm">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            🎯 Average Pitch
-          </p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            {analysisResults.pitch.average} Hz
-          </p>
-        </div>
-        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg shadow-sm">
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            🎭 Pitch Variation
-          </p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            ±{analysisResults.pitch.variation} Hz
-          </p>
-        </div>
-      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg shadow-sm">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            🎯 Average Pitch
+                          </p>
+                          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                            {analysisResults.pitch.average} Hz
+                          </p>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg shadow-sm">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            🎭 Pitch Variation
+                          </p>
+                          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                            ±{analysisResults.pitch.variation} Hz
+                          </p>
+                        </div>
+                      </div>
 
-      {/* 💬 Feedback */}
-      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 font-semibold">
-          🎙️ Feedback
-        </p>
-        <p className="text-gray-700 dark:text-gray-300">
-          {analysisResults.pitch.feedback}
-        </p>
-      </div>
+                      {/* 💬 Feedback */}
+                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 font-semibold">
+                          🎙️ Feedback
+                        </p>
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {analysisResults.pitch.feedback}
+                        </p>
+                      </div>
 
-      {/* Add Section Feedback */}
-      <div className="mt-4">
-        <p className="text-gray-700 dark:text-gray-300">
-          {analysisResults.section_feedback.pitch_feedback}
-        </p>
-      </div>
+                      {/* Add Section Feedback */}
+                      <div className="mt-4">
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {analysisResults.section_feedback.pitch_feedback}
+                        </p>
+                      </div>
 
-      {/* ℹ️ Info (optional) */}
-      <div className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-        <p>
-          <strong>Tip:</strong> A higher average pitch can sound more enthusiastic, while good pitch variation keeps your voice engaging. The graph above shows how your pitch changed over time.
-        </p>
-      </div>
-    </div>
-  )}
-</motion.div>
+                      {/* ℹ️ Info (optional) */}
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+                        <p>
+                          <strong>Tip:</strong> A higher average pitch can sound
+                          more enthusiastic, while good pitch variation keeps
+                          your voice engaging. The graph above shows how your
+                          pitch changed over time.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
 
                 {/* Emotion Detection Section */}
                 <motion.div
@@ -1184,6 +1193,12 @@ const AudioAnalysis = () => {
                       <p className="text-gray-700 dark:text-gray-300">
                         {analysisResults.emotion.emotion.feedback}
                       </p>
+                      {/* Add Feedback */}
+                      <div className="mt-4">
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {analysisResults.section_feedback.emotion_feedback}
+                        </p>
+                      </div>
                     </div>
                   )}
                 </motion.div>
