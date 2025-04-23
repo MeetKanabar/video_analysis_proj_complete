@@ -90,6 +90,38 @@ app.post("/predict", upload.single("audio"), (req, res) => {
   });
 });
 
+// ✍️ TEXT ANALYSIS ENDPOINT (Consistent with audio analysis)
+app.post("/text-analysis", express.json(), upload.none(), (req, res) => {
+  const { text, parameters } = req.body;
+  if (!text || !parameters) {
+    return res.status(400).json({ error: "Text and parameters are required." });
+  }
+  
+  const input = JSON.stringify({ text, parameters }).replace(/"/g, '\\"'); // Escape for shell-safe input
+  
+  exec(
+    `set PYTHONPATH=. && python text_analysis/analyze_text.py "${input}"`,
+    (err, stdout, stderr) => {
+      if (err) {
+        console.error("❌ Python execution error:", err.message);
+        return res.status(500).json({ error: stderr || err.message });
+      }
+
+      try {
+        const result = JSON.parse(stdout);
+        res.json(result);
+        console.log(" Text analysis JSON parsed successfully.");
+      } catch (e) {
+        console.error("🚨 Failed to parse JSON from Python:", e.message);
+        console.log("⚠️ Raw output:", stdout);
+        res.status(500).json({ error: "Invalid JSON returned by Python script" });
+      }
+    }
+  );
+});
+
+
+
 // 📚 WORD EXPLORER ENDPOINT
 app.get("/word-explorer/:word", (req, res) => {
   const word = req.params.word;

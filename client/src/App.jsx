@@ -11,7 +11,6 @@ import PracticePage from "./pages/PracticePage"
 import GamesPage from "./pages/GamesPage"
 import AudioAnalysis from "./pages/AudioAnalysis"
 import VideoPage from "./pages/VideoPage"
-import TextPage from "./pages/TextPage"
 import WordExplorer from "./pages/WordExplorer"
 import DefinitionQuiz from "./pages/DefinitionQuiz"
 import PronunciationCheck from "./pages/PronunciationCheck"
@@ -19,6 +18,7 @@ import PronunciationCheck from "./pages/PronunciationCheck"
 // Components
 import AnimatedCursor from "./components/AnimatedCursor"
 import Loader from "./components/Loader"
+import TextAnalysis from "./pages/TextAnalysis"
 
 function App() {
   const location = useLocation()
@@ -39,7 +39,7 @@ function App() {
             <Route path="/games" element={<GamesPage />} />
             <Route path="/audio" element={<AudioAnalysis />} />
             <Route path="/video" element={<VideoPage />} />
-            <Route path="/text" element={<TextPage />} />
+            <Route path="/text" element={<TextAnalysis />} />
             <Route path="/word-explorer" element={<WordExplorer />} />
             <Route path="/definition-quiz" element={<DefinitionQuiz />} />
             <Route path="/pronunciation-check" element={<PronunciationCheck />} />

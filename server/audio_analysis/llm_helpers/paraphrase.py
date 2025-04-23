@@ -31,11 +31,12 @@ def paraphrase_text(text):
         model = genai.GenerativeModel("gemini-2.0-flash")
 
         prompt = (
-            f"Break the following text into its individual sentences. Paraphrase each sentence in a fluent and natural way, "
-            f"keeping the original meaning. Then return the final paraphrased version as a single paragraph, "
-            f"without any bullets or line breaks:\n\n{text}"
+            f"Break the following text into its individual sentences. For each of the five iterations, "
+            f"paraphrase each sentence in a fluent and natural way while preserving its meaning. "
+            f"Then combine the paraphrased sentences back into a single coherent paragraph. "
+            f"Return five different full-paragraph versions of the text, each on a new line. "
+            f"Do not include any numbering, bullets, or explanations — just return the five paraphrased paragraphs:\n\n{text}"
         )
-
 
         response = model.generate_content(
             contents=[{"role": "user", "parts": [prompt]}],

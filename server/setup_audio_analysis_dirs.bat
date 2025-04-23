@@ -1,5 +1,0 @@
-mkdir audio_analysis
-mkdir audio_analysis\utils
-mkdir audio_analysis\plots
-mkdir audio_analysis\models
-mkdir audio_analysis\llm_helpers
