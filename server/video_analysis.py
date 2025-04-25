@@ -302,11 +302,12 @@ def analyze_frame(frame):
         return False, None, posture_data
         
     except Exception as e:
-        print(json.dumps({
+        sys.stderr.write(json.dumps({
             "error": f"Frame analysis error: {str(e)}",
             "traceback": traceback.format_exc()
-        }))
-        return False, None, None
+        }) + "\n")
+        sys.exit(1)
+
 
 def analyze_video(video_path):
     try:
@@ -448,7 +449,6 @@ def analyze_video(video_path):
         
         # Ensure the results can be JSON serialized
         json_str = json.dumps(results)
-        print(json_str)
         return json.loads(json_str)
         
     except Exception as e:
@@ -603,14 +603,20 @@ if __name__ == "__main__":
         video_path = sys.argv[1]
         if not os.path.exists(video_path):
             raise Exception(f"Video file not found: {video_path}")
-        print(analyze_video(video_path))
+        
+        # Analyze the video and print the results as JSON
+        results = analyze_video(video_path)
+        print(json.dumps(results))  # Ensure only JSON is printed to stdout
     except Exception as e:
-        print(json.dumps({
+        # Print errors as JSON to stdout
+        error_msg = {
             "error": str(e),
+            "traceback": traceback.format_exc(),
             "details": {
                 "suggestions": [
                     "Please provide a valid video file path",
                     "Ensure the video file exists"
                 ]
             }
-        }))
+        }
+        print(json.dumps(error_msg))

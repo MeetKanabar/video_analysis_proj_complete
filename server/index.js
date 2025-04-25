@@ -21,6 +21,55 @@ function convertToWav(inputPath) {
   return outputPath;
 }
 
+// For cross-platform: decide python path based on OS
+const isWindows = process.platform === "win32";
+const pythonPath = isWindows
+  ? `"${path.join(__dirname, "venv", "Scripts", "python.exe")}"`
+  : `./venv/bin/python`;
+
+app.post("/analyze-video", upload.single("video"), (req, res) => {
+  if (!req.file) {
+    console.error("❌ No video file received");
+    return res.status(400).json({ error: "No video file uploaded" });
+  }
+
+  const videoPath = path.join(__dirname, req.file.path);
+  const command = `${pythonPath} video_analysis.py "${videoPath}"`;
+
+
+  exec(command, (err, stdout, stderr) => {
+    // Always delete uploaded video file after processing
+    try {
+      fs.unlinkSync(videoPath);
+    } catch (unlinkError) {
+      console.error("⚠️ Failed to delete uploaded file:", unlinkError.message);
+    }
+
+    if (err) {
+      console.error("❌ Python execution error:", stderr || err.message);
+      return res.status(500).json({ error: stderr || err.message });
+    }
+
+    try {
+      // Find JSON inside stdout safely
+      const jsonStartIndex = stdout.indexOf("{");
+      const jsonEndIndex = stdout.lastIndexOf("}");
+      if (jsonStartIndex === -1 || jsonEndIndex === -1) {
+        throw new Error("No JSON found in Python output");
+      }
+
+      const cleanedOutput = stdout.slice(jsonStartIndex, jsonEndIndex + 1);
+      const result = JSON.parse(cleanedOutput);
+
+      res.json(result);
+    } catch (parseError) {
+      console.error("🚨 Failed to parse JSON from Python:", parseError.message);
+      console.log("⚠️ Raw output from Python:", stdout);
+      res.status(500).json({ error: "Invalid JSON returned by Python script" });
+    }
+  });
+});
+
 // 🔥 AUDIO ANALYSIS ENDPOINT 🔥
 app.post("/audio-analysis", upload.single("audio"), async (req, res) => {
   if (!req.file) {
@@ -179,5 +228,5 @@ app.use(
 // Start server
 const PORT = 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(` Server running on port ${PORT}`);
 });

@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState, useRef, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { useDropzone } from "react-dropzone"
-import Navbar from "../components/Navbar"
-import Footer from "../components/Footer"
+import { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useDropzone } from "react-dropzone";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import {
   Upload,
   ChevronDown,
@@ -20,39 +20,39 @@ import {
   Activity,
   Copy,
   Check,
-} from "lucide-react"
+} from "lucide-react";
 
 const VideoAnalysis = () => {
   // State management
-  const [activeTab, setActiveTab] = useState("upload") // "upload" or "record"
-  const [videoFile, setVideoFile] = useState(null)
-  const [videoUrl, setVideoUrl] = useState("")
-  const [isRecording, setIsRecording] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisResults, setAnalysisResults] = useState(null)
+  const [activeTab, setActiveTab] = useState("upload"); // "upload" or "record"
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResults, setAnalysisResults] = useState(null);
   const [expandedSections, setExpandedSections] = useState({
     metrics: true,
     attention: true,
     emotion: true,
     posture: true,
     engagement: true,
-  })
-  const [copied, setCopied] = useState(false)
+  });
+  const [copied, setCopied] = useState(false);
 
-  const videoRef = useRef(null)
-  const mediaRecorderRef = useRef(null)
-  const streamRef = useRef(null)
-  const chunksRef = useRef([])
+  const videoRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const streamRef = useRef(null);
+  const chunksRef = useRef([]);
 
   // Handle file upload
   const onDrop = useCallback((acceptedFiles) => {
-    const file = acceptedFiles[0]
+    const file = acceptedFiles[0];
     if (file) {
-      setVideoFile(file)
-      setVideoUrl(URL.createObjectURL(file))
+      setVideoFile(file);
+      setVideoUrl(URL.createObjectURL(file));
     }
-  }, [])
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -62,7 +62,7 @@ const VideoAnalysis = () => {
       "video/quicktime": [".mov"],
     },
     maxFiles: 1,
-  })
+  });
 
   // Start webcam recording
   const startRecording = async () => {
@@ -70,153 +70,153 @@ const VideoAnalysis = () => {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
-      })
+      });
 
-      streamRef.current = stream
-      videoRef.current.srcObject = stream
-      videoRef.current.play()
+      streamRef.current = stream;
+      videoRef.current.srcObject = stream;
+      videoRef.current.play();
 
-      mediaRecorderRef.current = new MediaRecorder(stream)
-      chunksRef.current = []
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      chunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (e) => {
         if (e.data.size > 0) {
-          chunksRef.current.push(e.data)
+          chunksRef.current.push(e.data);
         }
-      }
+      };
 
       mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: "video/webm" })
-        const url = URL.createObjectURL(blob)
-        setVideoFile(blob)
-        setVideoUrl(url)
+        const blob = new Blob(chunksRef.current, { type: "video/webm" });
+        const url = URL.createObjectURL(blob);
+        setVideoFile(blob);
+        setVideoUrl(url);
 
         // Stop all tracks
-        streamRef.current.getTracks().forEach((track) => track.stop())
-        videoRef.current.srcObject = null
-      }
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        videoRef.current.srcObject = null;
+      };
 
-      mediaRecorderRef.current.start()
-      setIsRecording(true)
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
     } catch (error) {
-      console.error("Error accessing camera:", error)
+      console.error("Error accessing camera:", error);
     }
-  }
+  };
 
   // Stop recording
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop()
-      setIsRecording(false)
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
     }
-  }
+  };
 
   // Toggle section expansion
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
-    }))
-  }
+    }));
+  };
 
   // Analyze video
   const analyzeVideo = async () => {
-    if (!videoFile) return
+    if (!videoFile) return;
 
-    setIsAnalyzing(true)
-    setAnalysisResults(null)
+    setIsAnalyzing(true);
+    setAnalysisResults(null);
 
     try {
       // In a real app, you would send the video to your API
-      // const formData = new FormData();
-      // formData.append("video", videoFile);
-      // const response = await fetch("/analyze-video", {
-      //   method: "POST",
-      //   body: formData,
-      // });
-      // const data = await response.json();
+      const formData = new FormData();
+      formData.append("video", videoFile);
+      const response = await fetch("http://localhost:5000/analyze-video", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
 
       // For demo purposes, we'll simulate an API call with a timeout
-      await new Promise((resolve) => setTimeout(resolve, 3000))
+      // await new Promise((resolve) => setTimeout(resolve, 3000))
 
-      // Mock response data based on the new format
-      const mockResults = {
-        presentation_metrics: {
-          duration: 124.5,
-          frames_analyzed: 3735,
-          analysis_quality: 95.3,
-        },
-        eye_contact_analysis: {
-          looking_at_screen: 112,
-          not_looking_at_screen: 12.5,
-          attention_percentage: 90,
-        },
-        emotion_analysis: {
-          happy: 0.45,
-          neutral: 0.35,
-          enthusiastic: 0.15,
-          concerned: 0.05,
-          confused: 0,
-          sad: 0,
-          angry: 0,
-          fear: 0,
-        },
-        posture_analysis: {
-          craniovertebral_angle_score: 85,
-          shoulder_tilt_score: 90,
-          shoulder_symmetry_score: 92,
-          shoulder_position_score: 88,
-          overall_posture_score: 88,
-        },
-        engagement_patterns: {
-          segments: [
-            { time: 0, emotions: {}, engagement: 75 },
-            { time: 30, emotions: {}, engagement: 85 },
-            { time: 60, emotions: {}, engagement: 90 },
-            { time: 90, emotions: {}, engagement: 95 },
-            { time: 120, emotions: {}, engagement: 90 },
-          ],
-          overall_engagement: 87,
-          engagement_stability: 92,
-        },
-        assessment: {
-          rating: "Excellent",
-          total_score: 89.6,
-          detailed_scores: {
-            attention: 90,
-            posture: 88,
-            emotion: 85,
-            engagement: 87,
-          },
-          feedback: [
-            "Excellent eye contact maintained throughout the presentation",
-            "Good posture with minimal swaying or fidgeting",
-            "Consistent engagement level with appropriate emotional expressions",
-          ],
-          improvements: [
-            "Try to vary your emotional expressions more for emphasis",
-            "Occasionally your shoulders tensed during technical explanations",
-          ],
-          metrics: {
-            engagement_level: 100,
-            expression_variety: 50,
-            professionalism_score: 85,
-            posture_quality: 88,
-          },
-        },
-      }
-
-      setAnalysisResults(mockResults)
+      // // Mock response data based on the new format
+      // const mockResults = {
+      //   presentation_metrics: {
+      //     duration: 124.5,
+      //     frames_analyzed: 3735,
+      //     analysis_quality: 95.3,
+      //   },
+      //   eye_contact_analysis: {
+      //     looking_at_screen: 112,
+      //     not_looking_at_screen: 12.5,
+      //     attention_percentage: 90,
+      //   },
+      //   emotion_analysis: {
+      //     happy: 0.45,
+      //     neutral: 0.35,
+      //     enthusiastic: 0.15,
+      //     concerned: 0.05,
+      //     confused: 0,
+      //     sad: 0,
+      //     angry: 0,
+      //     fear: 0,
+      //   },
+      //   posture_analysis: {
+      //     craniovertebral_angle_score: 85,
+      //     shoulder_tilt_score: 90,
+      //     shoulder_symmetry_score: 92,
+      //     shoulder_position_score: 88,
+      //     overall_posture_score: 88,
+      //   },
+      //   engagement_patterns: {
+      //     segments: [
+      //       { time: 0, emotions: {}, engagement: 75 },
+      //       { time: 30, emotions: {}, engagement: 85 },
+      //       { time: 60, emotions: {}, engagement: 90 },
+      //       { time: 90, emotions: {}, engagement: 95 },
+      //       { time: 120, emotions: {}, engagement: 90 },
+      //     ],
+      //     overall_engagement: 87,
+      //     engagement_stability: 92,
+      //   },
+      //   assessment: {
+      //     rating: "Excellent",
+      //     total_score: 89.6,
+      //     detailed_scores: {
+      //       attention: 90,
+      //       posture: 88,
+      //       emotion: 85,
+      //       engagement: 87,
+      //     },
+      //     feedback: [
+      //       "Excellent eye contact maintained throughout the presentation",
+      //       "Good posture with minimal swaying or fidgeting",
+      //       "Consistent engagement level with appropriate emotional expressions",
+      //     ],
+      //     improvements: [
+      //       "Try to vary your emotional expressions more for emphasis",
+      //       "Occasionally your shoulders tensed during technical explanations",
+      //     ],
+      //     metrics: {
+      //       engagement_level: 100,
+      //       expression_variety: 50,
+      //       professionalism_score: 85,
+      //       posture_quality: 88,
+      //     },
+      //   },
+      // }
+      console.log("Video analysis results:", data);
+      setAnalysisResults(data);
     } catch (error) {
-      console.error("Error analyzing video:", error)
+      console.error("Error analyzing video:", error);
     } finally {
-      setIsAnalyzing(false)
+      setIsAnalyzing(false);
     }
-  }
+  };
 
   // Copy feedback to clipboard
   const copyFeedback = () => {
-    if (!analysisResults) return
+    if (!analysisResults) return;
 
     const feedback = `
 Video Analysis Report
@@ -232,20 +232,24 @@ Positive Points:
 ${analysisResults.assessment.feedback.map((point) => `✅ ${point}`).join("\n")}
 
 Areas for Improvement:
-${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("\n")}
-    `
+${analysisResults.assessment.improvements
+  .map((point) => `🔧 ${point}`)
+  .join("\n")}
+    `;
 
-    navigator.clipboard.writeText(feedback)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+    navigator.clipboard.writeText(feedback);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Get badge color class
   const getBadgeColorClass = (score) => {
-    if (score >= 80) return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-    if (score >= 60) return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-    return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-  }
+    if (score >= 80)
+      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+    if (score >= 60)
+      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
+    return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
+  };
 
   // Animation variants
   const containerVariants = {
@@ -256,21 +260,21 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
         staggerChildren: 0.1,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
-  }
+  };
 
   // Format emotion data for display (convert from decimal to percentage)
   const formatEmotionData = (emotionData) => {
-    const result = {}
+    const result = {};
     Object.entries(emotionData).forEach(([key, value]) => {
-      result[key] = Math.round(value * 100)
-    })
-    return result
-  }
+      result[key] = Math.round(value * 100);
+    });
+    return result;
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -278,12 +282,20 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
 
       <main className="flex-grow pt-24 pb-16 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4">
-          <motion.div className="max-w-4xl mx-auto" initial="hidden" animate="visible" variants={containerVariants}>
+          <motion.div
+            className="max-w-4xl mx-auto"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+          >
             {/* Header */}
             <motion.div className="text-center mb-10" variants={itemVariants}>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">Video Analysis</h1>
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
+                Video Analysis
+              </h1>
               <p className="text-lg text-gray-600 dark:text-gray-300">
-                Analyze your public speaking skills using AI-powered video feedback
+                Analyze your public speaking skills using AI-powered video
+                feedback
               </p>
             </motion.div>
 
@@ -335,7 +347,8 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                     >
                       <div className="text-center mb-4">
                         <p className="text-gray-600 dark:text-gray-300">
-                          Upload a video file (.mp4, .webm, or .mov) to analyze your presentation
+                          Upload a video file (.mp4, .webm, or .mov) to analyze
+                          your presentation
                         </p>
                       </div>
 
@@ -349,9 +362,14 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                         }`}
                       >
                         <input {...getInputProps()} />
-                        <Upload size={36} className="mx-auto mb-4 text-gray-400 dark:text-gray-500" />
+                        <Upload
+                          size={36}
+                          className="mx-auto mb-4 text-gray-400 dark:text-gray-500"
+                        />
                         {isDragActive ? (
-                          <p className="text-blue-600 dark:text-blue-400 font-medium">Drop the video file here...</p>
+                          <p className="text-blue-600 dark:text-blue-400 font-medium">
+                            Drop the video file here...
+                          </p>
                         ) : (
                           <div>
                             <p className="text-gray-600 dark:text-gray-300 mb-2">
@@ -374,13 +392,19 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                     >
                       <div className="text-center mb-4">
                         <p className="text-gray-600 dark:text-gray-300">
-                          Record yourself using your webcam to analyze your presentation
+                          Record yourself using your webcam to analyze your
+                          presentation
                         </p>
                       </div>
 
                       {/* Video Preview */}
                       <div className="bg-black rounded-lg overflow-hidden aspect-video mb-4 relative">
-                        <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />
+                        <video
+                          ref={videoRef}
+                          className="w-full h-full object-cover"
+                          muted
+                          playsInline
+                        />
 
                         {isRecording && (
                           <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-600 text-white px-3 py-1 rounded-full text-sm">
@@ -430,9 +454,15 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
               >
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Video Preview</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                  Video Preview
+                </h3>
                 <div className="aspect-video bg-black rounded-lg overflow-hidden mb-4">
-                  <video src={videoUrl} className="w-full h-full object-contain" controls />
+                  <video
+                    src={videoUrl}
+                    className="w-full h-full object-contain"
+                    controls
+                  />
                 </div>
                 <div className="flex justify-center">
                   <button
@@ -474,13 +504,18 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                       }}
                     ></motion.div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Loader size={32} className="text-blue-600 dark:text-blue-400" />
+                      <Loader
+                        size={32}
+                        className="text-blue-600 dark:text-blue-400"
+                      />
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Analyzing Your Video</h3>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    Analyzing Your Video
+                  </h3>
                   <p className="text-gray-600 dark:text-gray-300 max-w-md">
-                    Our AI is processing your video to provide detailed insights on your public speaking skills. This
-                    may take a moment...
+                    Our AI is processing your video to provide detailed insights
+                    on your public speaking skills. This may take a moment...
                   </p>
                 </div>
 
@@ -506,8 +541,16 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
 
             {/* Analysis Results */}
             {analysisResults && !isAnalyzing && (
-              <motion.div className="space-y-6" initial="hidden" animate="visible" variants={containerVariants}>
-                <motion.div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6" variants={itemVariants}>
+              <motion.div
+                className="space-y-6"
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+              >
+                <motion.div
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6"
+                  variants={itemVariants}
+                >
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
                     Video Analysis Report
                   </h2>
@@ -522,7 +565,9 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                         <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                           <BarChart2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Presentation Metrics</h3>
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                          Presentation Metrics
+                        </h3>
                       </div>
                       {expandedSections.metrics ? (
                         <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
@@ -534,22 +579,37 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                     {expandedSections.metrics && (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
                         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Duration</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            Duration
+                          </p>
                           <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                            {Math.floor(analysisResults.presentation_metrics.duration / 60)}m{" "}
-                            {Math.round(analysisResults.presentation_metrics.duration % 60)}s
+                            {Math.floor(
+                              analysisResults.presentation_metrics.duration / 60
+                            )}
+                            m{" "}
+                            {Math.round(
+                              analysisResults.presentation_metrics.duration % 60
+                            )}
+                            s
                           </p>
                         </div>
                         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Frames Analyzed</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            Frames Analyzed
+                          </p>
                           <p className="text-2xl font-bold text-gray-900 dark:text-white">
                             {analysisResults.presentation_metrics.frames_analyzed.toLocaleString()}
                           </p>
                         </div>
                         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Analysis Quality</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            Analysis Quality
+                          </p>
                           <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                            {analysisResults.presentation_metrics.analysis_quality.toFixed(1)}%
+                            {analysisResults.presentation_metrics.analysis_quality.toFixed(
+                              1
+                            )}
+                            %
                           </p>
                         </div>
                       </div>
@@ -566,7 +626,9 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                         <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                           <Eye className="w-5 h-5 text-green-600 dark:text-green-400" />
                         </div>
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Attention & Eye Contact</h3>
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                          Attention & Eye Contact
+                        </h3>
                       </div>
                       {expandedSections.attention ? (
                         <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
@@ -580,28 +642,48 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                         <div className="flex flex-col">
                           <div className="grid grid-cols-2 gap-4 mb-4">
                             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Looking at Screen</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                                Looking at Screen
+                              </p>
                               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                {analysisResults.eye_contact_analysis.looking_at_screen}s
+                                {
+                                  analysisResults.eye_contact_analysis
+                                    .looking_at_screen
+                                }
+                                s
                               </p>
                             </div>
                             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Looking Away</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                                Looking Away
+                              </p>
                               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                {analysisResults.eye_contact_analysis.not_looking_at_screen}s
+                                {
+                                  analysisResults.eye_contact_analysis
+                                    .not_looking_at_screen
+                                }
+                                s
                               </p>
                             </div>
                           </div>
                           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Attention Score</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                              Attention Score
+                            </p>
                             <div className="flex items-center">
                               <p className="text-3xl font-bold text-gray-900 dark:text-white mr-2">
-                                {analysisResults.eye_contact_analysis.attention_percentage}%
+                                {
+                                  analysisResults.eye_contact_analysis
+                                    .attention_percentage
+                                }
+                                %
                               </p>
                               <div className="flex-grow h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                                 <div
                                   className="h-full bg-green-500 dark:bg-green-600 rounded-full"
-                                  style={{ width: `${analysisResults.eye_contact_analysis.attention_percentage}%` }}
+                                  style={{
+                                    width: `${analysisResults.eye_contact_analysis.attention_percentage}%`,
+                                  }}
                                 ></div>
                               </div>
                             </div>
@@ -644,7 +726,11 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                                 className="fill-gray-900 dark:fill-white font-bold text-[0.5rem]"
                                 fontSize="0.5rem"
                               >
-                                {analysisResults.eye_contact_analysis.attention_percentage}%
+                                {
+                                  analysisResults.eye_contact_analysis
+                                    .attention_percentage
+                                }
+                                %
                               </text>
 
                               <text
@@ -674,7 +760,9 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                         <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                           <Smile className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                         </div>
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Emotion Breakdown</h3>
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                          Emotion Breakdown
+                        </h3>
                       </div>
                       {expandedSections.emotion ? (
                         <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
@@ -687,7 +775,9 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                       <div className="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
                         {/* Horizontal Bar Chart */}
                         <div className="space-y-4">
-                          {Object.entries(formatEmotionData(analysisResults.emotion_analysis))
+                          {Object.entries(
+                            formatEmotionData(analysisResults.emotion_analysis)
+                          )
                             .filter(([_, value]) => value > 0)
                             .sort(([_, a], [__, b]) => b - a)
                             .map(([emotion, percentage]) => (
@@ -696,7 +786,9 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
                                     {emotion}
                                   </span>
-                                  <span className="text-sm text-gray-500 dark:text-gray-400">{percentage}%</span>
+                                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                                    {percentage}%
+                                  </span>
                                 </div>
                                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
                                   <div
@@ -707,20 +799,20 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                                         emotion === "happy"
                                           ? "#10B981"
                                           : emotion === "neutral"
-                                            ? "#6B7280"
-                                            : emotion === "enthusiastic"
-                                              ? "#3B82F6"
-                                              : emotion === "concerned"
-                                                ? "#F59E0B"
-                                                : emotion === "confused"
-                                                  ? "#8B5CF6"
-                                                  : emotion === "sad"
-                                                    ? "#6366F1"
-                                                    : emotion === "angry"
-                                                      ? "#EF4444"
-                                                      : emotion === "fear"
-                                                        ? "#EC4899"
-                                                        : "#9CA3AF",
+                                          ? "#6B7280"
+                                          : emotion === "enthusiastic"
+                                          ? "#3B82F6"
+                                          : emotion === "concerned"
+                                          ? "#F59E0B"
+                                          : emotion === "confused"
+                                          ? "#8B5CF6"
+                                          : emotion === "sad"
+                                          ? "#6366F1"
+                                          : emotion === "angry"
+                                          ? "#EF4444"
+                                          : emotion === "fear"
+                                          ? "#EC4899"
+                                          : "#9CA3AF",
                                     }}
                                   ></div>
                                 </div>
@@ -730,11 +822,14 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
 
                         <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
                           <p>
-                            Your presentation shows a good mix of emotions, with a predominant{" "}
+                            Your presentation shows a good mix of emotions, with
+                            a predominant{" "}
                             {
-                              Object.entries(formatEmotionData(analysisResults.emotion_analysis)).sort(
-                                ([_, a], [__, b]) => b - a,
-                              )[0][0]
+                              Object.entries(
+                                formatEmotionData(
+                                  analysisResults.emotion_analysis
+                                )
+                              ).sort(([_, a], [__, b]) => b - a)[0][0]
                             }{" "}
                             tone.
                           </p>
@@ -753,7 +848,9 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                         <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                           <Activity className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                         </div>
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Posture Evaluation</h3>
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                          Posture Evaluation
+                        </h3>
                       </div>
                       {expandedSections.posture ? (
                         <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
@@ -768,15 +865,23 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                           {/* CVA Score */}
                           <div className="space-y-2">
                             <div className="flex justify-between">
-                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">CVA Score</span>
                               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {analysisResults.posture_analysis.craniovertebral_angle_score}/100
+                                CVA Score
+                              </span>
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {
+                                  analysisResults.posture_analysis
+                                    .craniovertebral_angle_score
+                                }
+                                /100
                               </span>
                             </div>
                             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
                               <div
                                 className="h-4 rounded-full bg-blue-600 dark:bg-blue-500"
-                                style={{ width: `${analysisResults.posture_analysis.craniovertebral_angle_score}%` }}
+                                style={{
+                                  width: `${analysisResults.posture_analysis.craniovertebral_angle_score}%`,
+                                }}
                               ></div>
                             </div>
                           </div>
@@ -788,13 +893,19 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                                 Shoulder Tilt
                               </span>
                               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {analysisResults.posture_analysis.shoulder_tilt_score}/100
+                                {
+                                  analysisResults.posture_analysis
+                                    .shoulder_tilt_score
+                                }
+                                /100
                               </span>
                             </div>
                             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
                               <div
                                 className="h-4 rounded-full bg-green-600 dark:bg-green-500"
-                                style={{ width: `${analysisResults.posture_analysis.shoulder_tilt_score}%` }}
+                                style={{
+                                  width: `${analysisResults.posture_analysis.shoulder_tilt_score}%`,
+                                }}
                               ></div>
                             </div>
                           </div>
@@ -806,13 +917,19 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                                 Shoulder Symmetry
                               </span>
                               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {analysisResults.posture_analysis.shoulder_symmetry_score}/100
+                                {
+                                  analysisResults.posture_analysis
+                                    .shoulder_symmetry_score
+                                }
+                                /100
                               </span>
                             </div>
                             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
                               <div
                                 className="h-4 rounded-full bg-purple-600 dark:bg-purple-500"
-                                style={{ width: `${analysisResults.posture_analysis.shoulder_symmetry_score}%` }}
+                                style={{
+                                  width: `${analysisResults.posture_analysis.shoulder_symmetry_score}%`,
+                                }}
                               ></div>
                             </div>
                           </div>
@@ -824,13 +941,19 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                                 Overall Posture
                               </span>
                               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {analysisResults.posture_analysis.overall_posture_score}/100
+                                {
+                                  analysisResults.posture_analysis
+                                    .overall_posture_score
+                                }
+                                /100
                               </span>
                             </div>
                             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
                               <div
                                 className="h-4 rounded-full bg-amber-600 dark:bg-amber-500"
-                                style={{ width: `${analysisResults.posture_analysis.overall_posture_score}%` }}
+                                style={{
+                                  width: `${analysisResults.posture_analysis.overall_posture_score}%`,
+                                }}
                               ></div>
                             </div>
                           </div>
@@ -849,7 +972,9 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                         <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
                           <PieChart className="w-5 h-5 text-red-600 dark:text-red-400" />
                         </div>
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Engagement Patterns</h3>
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                          Engagement Patterns
+                        </h3>
                       </div>
                       {expandedSections.engagement ? (
                         <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
@@ -862,15 +987,27 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                       <div className="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Overall Engagement</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                              Overall Engagement
+                            </p>
                             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                              {analysisResults.engagement_patterns.overall_engagement}/100
+                              {
+                                analysisResults.engagement_patterns
+                                  .overall_engagement
+                              }
+                              /100
                             </p>
                           </div>
                           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Stability</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                              Stability
+                            </p>
                             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                              {analysisResults.engagement_patterns.engagement_stability}/100
+                              {
+                                analysisResults.engagement_patterns
+                                  .engagement_stability
+                              }
+                              /100
                             </p>
                           </div>
                         </div>
@@ -902,33 +1039,57 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                                 {/* Line chart */}
                                 <svg className="absolute inset-0 h-full w-full overflow-visible">
                                   <defs>
-                                    <linearGradient id="engagement-gradient" x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.2" />
-                                      <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
+                                    <linearGradient
+                                      id="engagement-gradient"
+                                      x1="0"
+                                      y1="0"
+                                      x2="0"
+                                      y2="1"
+                                    >
+                                      <stop
+                                        offset="0%"
+                                        stopColor="#3B82F6"
+                                        stopOpacity="0.2"
+                                      />
+                                      <stop
+                                        offset="100%"
+                                        stopColor="#3B82F6"
+                                        stopOpacity="0"
+                                      />
                                     </linearGradient>
                                   </defs>
 
-                                  {/* Area under the line */}
                                   <path
                                     d={`
                                       M ${analysisResults.engagement_patterns.segments
                                         .map(
                                           (point, i, arr) =>
-                                            `${(i / (arr.length - 1)) * 100}% ${100 - point.engagement}%`,
+                                            `${(
+                                              (i / (arr.length - 1)) *
+                                              100
+                                            ).toFixed(2)} ${(
+                                              100 -
+                                              point.engagement * 100
+                                            ).toFixed(2)}`
                                         )
                                         .join(" L ")}
-                                      L 100% 100% L 0% 100% Z
+                                      L 100 100 L 0 100 Z
                                     `}
                                     fill="url(#engagement-gradient)"
                                   />
 
-                                  {/* Line */}
                                   <path
                                     d={`
                                       M ${analysisResults.engagement_patterns.segments
                                         .map(
                                           (point, i, arr) =>
-                                            `${(i / (arr.length - 1)) * 100}% ${100 - point.engagement}%`,
+                                            `${(
+                                              (i / (arr.length - 1)) *
+                                              100
+                                            ).toFixed(2)} ${(
+                                              100 -
+                                              point.engagement * 100
+                                            ).toFixed(2)}`
                                         )
                                         .join(" L ")}
                                     `}
@@ -939,16 +1100,18 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                                   />
 
                                   {/* Data points */}
-                                  {analysisResults.engagement_patterns.segments.map((point, i, arr) => (
-                                    <circle
-                                      key={i}
-                                      cx={`${(i / (arr.length - 1)) * 100}%`}
-                                      cy={`${100 - point.engagement}%`}
-                                      r="3"
-                                      fill="#3B82F6"
-                                      className="dark:fill-blue-400"
-                                    />
-                                  ))}
+                                  {analysisResults.engagement_patterns.segments.map(
+                                    (point, i, arr) => (
+                                      <circle
+                                        key={i}
+                                        cx={`${(i / (arr.length - 1)) * 100}%`}
+                                        cy={`${100 - point.engagement}%`}
+                                        r="3"
+                                        fill="#3B82F6"
+                                        className="dark:fill-blue-400"
+                                      />
+                                    )
+                                  )}
                                 </svg>
                               </div>
                             </div>
@@ -956,9 +1119,11 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
 
                           {/* X-axis labels */}
                           <div className="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400 pl-8">
-                            {analysisResults.engagement_patterns.segments.map((point, i) => (
-                              <span key={i}>{point.time}s</span>
-                            ))}
+                            {analysisResults.engagement_patterns.segments.map(
+                              (point, i) => (
+                                <span key={i}>{point.time}s</span>
+                              )
+                            )}
                           </div>
                         </div>
                       </div>
@@ -973,7 +1138,9 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
                     <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">Overall Assessment</h3>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                        Overall Assessment
+                      </h3>
                       <span className="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full text-sm font-medium">
                         {analysisResults.assessment.rating}
                       </span>
@@ -982,27 +1149,42 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                     {/* Individual Scores */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                       <div className="bg-gray-50 dark:bg-gray-700/30 p-3 rounded-lg text-center">
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Attention</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                          Attention
+                        </p>
                         <p className="text-xl font-bold text-gray-900 dark:text-white">
-                          {analysisResults.assessment.detailed_scores.attention}/100
+                          {analysisResults.assessment.detailed_scores.attention}
+                          /100
                         </p>
                       </div>
                       <div className="bg-gray-50 dark:bg-gray-700/30 p-3 rounded-lg text-center">
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Posture</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                          Posture
+                        </p>
                         <p className="text-xl font-bold text-gray-900 dark:text-white">
-                          {analysisResults.assessment.detailed_scores.posture}/100
+                          {analysisResults.assessment.detailed_scores.posture}
+                          /100
                         </p>
                       </div>
                       <div className="bg-gray-50 dark:bg-gray-700/30 p-3 rounded-lg text-center">
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Emotion</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                          Emotion
+                        </p>
                         <p className="text-xl font-bold text-gray-900 dark:text-white">
-                          {analysisResults.assessment.detailed_scores.emotion}/100
+                          {analysisResults.assessment.detailed_scores.emotion}
+                          /100
                         </p>
                       </div>
                       <div className="bg-gray-50 dark:bg-gray-700/30 p-3 rounded-lg text-center">
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Engagement</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                          Engagement
+                        </p>
                         <p className="text-xl font-bold text-gray-900 dark:text-white">
-                          {analysisResults.assessment.detailed_scores.engagement}/100
+                          {
+                            analysisResults.assessment.detailed_scores
+                              .engagement
+                          }
+                          /100
                         </p>
                       </div>
                     </div>
@@ -1016,12 +1198,16 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                           Positive Points
                         </h4>
                         <ul className="space-y-2">
-                          {analysisResults.assessment.feedback.map((point, index) => (
-                            <li key={index} className="flex items-start">
-                              <span className="text-green-500 mr-2">✓</span>
-                              <span className="text-gray-700 dark:text-gray-300">{point}</span>
-                            </li>
-                          ))}
+                          {analysisResults.assessment.feedback.map(
+                            (point, index) => (
+                              <li key={index} className="flex items-start">
+                                <span className="text-green-500 mr-2">✓</span>
+                                <span className="text-gray-700 dark:text-gray-300">
+                                  {point}
+                                </span>
+                              </li>
+                            )
+                          )}
                         </ul>
                       </div>
 
@@ -1032,12 +1218,16 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                           Suggested Improvements
                         </h4>
                         <ul className="space-y-2">
-                          {analysisResults.assessment.improvements.map((point, index) => (
-                            <li key={index} className="flex items-start">
-                              <span className="text-amber-500 mr-2">🔧</span>
-                              <span className="text-gray-700 dark:text-gray-300">{point}</span>
-                            </li>
-                          ))}
+                          {analysisResults.assessment.improvements.map(
+                            (point, index) => (
+                              <li key={index} className="flex items-start">
+                                <span className="text-amber-500 mr-2">🔧</span>
+                                <span className="text-gray-700 dark:text-gray-300">
+                                  {point}
+                                </span>
+                              </li>
+                            )
+                          )}
                         </ul>
                       </div>
                     </div>
@@ -1049,16 +1239,19 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
                         Performance Metrics
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {Object.entries(analysisResults.assessment.metrics).map(([key, value], index) => (
-                          <span
-                            key={index}
-                            className={`px-3 py-1 rounded-full text-sm font-medium ${getBadgeColorClass(
-                              typeof value === "number" ? value : 75,
-                            )}`}
-                          >
-                            {key.replace(/_/g, " ")}: {typeof value === "number" ? `${value}%` : value}
-                          </span>
-                        ))}
+                        {Object.entries(analysisResults.assessment.metrics).map(
+                          ([key, value], index) => (
+                            <span
+                              key={index}
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${getBadgeColorClass(
+                                typeof value === "number" ? value : 75
+                              )}`}
+                            >
+                              {key.replace(/_/g, " ")}:{" "}
+                              {typeof value === "number" ? `${value}%` : value}
+                            </span>
+                          )
+                        )}
                       </div>
                     </div>
 
@@ -1091,7 +1284,7 @@ ${analysisResults.assessment.improvements.map((point) => `🔧 ${point}`).join("
 
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default VideoAnalysis
+export default VideoAnalysis;
