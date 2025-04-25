@@ -90,37 +90,54 @@ app.post("/predict", upload.single("audio"), (req, res) => {
   });
 });
 
-// ✍️ TEXT ANALYSIS ENDPOINT (Consistent with audio analysis)
 app.post("/text-analysis", express.json(), upload.none(), (req, res) => {
-  const { text, parameters } = req.body;
+  const { text } = req.body;
+
+  const parameters = {
+    structure: true,
+    style: true,
+    grammar: true,
+    keywords: true,
+    readability: true,
+  };
+
   if (!text || !parameters) {
     return res.status(400).json({ error: "Text and parameters are required." });
   }
-  
-  const input = JSON.stringify({ text, parameters }).replace(/"/g, '\\"'); // Escape for shell-safe input
-  
-  exec(
-    `set PYTHONPATH=. && python text_analysis/analyze_text.py "${input}"`,
-    (err, stdout, stderr) => {
-      if (err) {
-        console.error("❌ Python execution error:", err.message);
-        return res.status(500).json({ error: stderr || err.message });
-      }
 
-      try {
-        const result = JSON.parse(stdout);
-        res.json(result);
-        console.log(" Text analysis JSON parsed successfully.");
-      } catch (e) {
-        console.error("🚨 Failed to parse JSON from Python:", e.message);
-        console.log("⚠️ Raw output:", stdout);
-        res.status(500).json({ error: "Invalid JSON returned by Python script" });
-      }
-    }
+  // Prepare shell-safe JSON input string
+  const escapedInput = JSON.stringify({ text, parameters }).replace(
+    /"/g,
+    '\\"'
   );
+
+  const command =
+    process.platform === "win32"
+      ? `set PYTHONPATH=. && python text_analysis/analyze_text.py "${escapedInput}"`
+      : `PYTHONPATH=. python3 text_analysis/analyze_text.py "${escapedInput}"`;
+
+  exec(command, (err, stdout, stderr) => {
+    if (err) {
+      console.error("❌ Python execution error:", stderr || err.message);
+      return res.status(500).json({ error: stderr || err.message });
+    }
+
+
+    try {
+      const jsonStart = stdout.indexOf("{");
+      const jsonEnd = stdout.lastIndexOf("}");
+      const cleaned = stdout.slice(jsonStart, jsonEnd + 1);
+      const result = JSON.parse(cleaned);
+
+
+      res.json(result);
+    } catch (e) {
+      console.error("🚨 Failed to parse JSON from Python:", e.message);
+      console.log("⚠️ Raw output:", stdout);
+      res.status(500).json({ error: "Invalid JSON returned by Python script" });
+    }
+  });
 });
-
-
 
 // 📚 WORD EXPLORER ENDPOINT
 app.get("/word-explorer/:word", (req, res) => {

@@ -135,34 +135,34 @@ def analyze_audio_pipeline(audio_path):
 
 
 
-    # 7. Revised Overall Score Calculation (Weighted Composite)
-    filler_penalty = sum(result["transcription"]["fillerWords"].values())
-    pause_penalty = result["pauses"]["longPauses"]
-    speed_score = 1 if result["speed"]["assessment"] == "moderate" else 0
-    energy_score = 1 if result["energy"]["level"] == "moderate energy" else 2 if result["energy"]["level"] == "high energy" else 0
-    pitch_score = 1 if result["pitch"]["variation"] > 40 else 0
-    emotion_bonus = 2 if result.get("emotion", {}).get("emotion", {}).get("primary") in ["happy", "surprise"] else 0
+    # # 7. Revised Overall Score Calculation (Weighted Composite)
+    # filler_penalty = sum(result["transcription"]["fillerWords"].values())
+    # pause_penalty = result["pauses"]["longPauses"]
+    # speed_score = 1 if result["speed"]["assessment"] == "moderate" else 0
+    # energy_score = 1 if result["energy"]["level"] == "moderate energy" else 2 if result["energy"]["level"] == "high energy" else 0
+    # pitch_score = 1 if result["pitch"]["variation"] > 40 else 0
+    # emotion_bonus = 2 if result.get("emotion", {}).get("emotion", {}).get("primary") in ["happy", "surprise"] else 0
 
-    # Weighted scoring
-    score = 100
-    score -= filler_penalty * 1.5       # Mild penalty per filler
-    score -= pause_penalty * 2          # Stronger penalty for excessive long pauses
-    score += speed_score * 5
-    score += energy_score * 5
-    score += pitch_score * 5
-    score += emotion_bonus * 3
+    # # Weighted scoring
+    # score = 100
+    # score -= filler_penalty * 1.5       # Mild penalty per filler
+    # score -= pause_penalty * 2          # Stronger penalty for excessive long pauses
+    # score += speed_score * 5
+    # score += energy_score * 5
+    # score += pitch_score * 5
+    # score += emotion_bonus * 3
 
-    # Clamp score to 60–100
-    score = int(max(min(score, 100), 60))
+    # # Clamp score to 60–100
+    # score = int(max(min(score, 100), 60))
 
-    result["overallScore"] = score
-    result["overallFeedback"] = (
-        "Outstanding delivery with strong vocal energy and clarity!"
-        if score > 85 else
-        "Good delivery. Focus on reducing fillers and maintaining pitch variety."
-        if score > 70 else
-        "Keep practicing! Work on pacing, reducing fillers, and adding vocal variety."
-    )
+    # result["overallScore"] = score
+    # result["overallFeedback"] = (
+    #     "Outstanding delivery with strong vocal energy and clarity!"
+    #     if score > 85 else
+    #     "Good delivery. Focus on reducing fillers and maintaining pitch variety."
+    #     if score > 70 else
+    #     "Keep practicing! Work on pacing, reducing fillers, and adding vocal variety."
+    # )
 
     # 0. Feedback Generation
     feedback = generate_structured_feedback(result)

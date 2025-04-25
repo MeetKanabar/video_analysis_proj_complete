@@ -4,7 +4,6 @@ import sys
 import os
 import re
 
-
 # Configure Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyD0cCbmyhXufYBpdrkjNE5-aaGBFjFKvm0")
 genai.configure(api_key=GEMINI_API_KEY)
@@ -14,8 +13,10 @@ def generate_structured_feedback(analysis_result):
         model = genai.GenerativeModel("gemini-2.0-flash")
 
         prompt = (
-            "You are a public speaking coach. Based on the following analysis, generate clear and concise feedback for each section.\n\n"
-            "Please respond ONLY in the following JSON format:\n"
+            "You are a public speaking coach. Based on the following voice analysis, "
+            "generate constructive feedback for each section and assign an overall delivery score.\n\n"
+
+            "Respond ONLY in this JSON format:\n"
             "{\n"
             '  "transcription_feedback": "...",\n'
             '  "pause_feedback": "...",\n'
@@ -23,41 +24,46 @@ def generate_structured_feedback(analysis_result):
             '  "energy_feedback": "...",\n'
             '  "pitch_feedback": "...",\n'
             '  "emotion_feedback": "...",\n'
-            '  "paraphrase_feedback": "..." \n'
+            '  "paraphrase_feedback": "...",\n'
+            '  "overallScore": <integer from 60 to 100>,\n'
+            '  "overallFeedback": "<brief feedback>"\n'
             "}\n\n"
+
+            "Scoring Guidelines:\n"
+            "- Reward clear articulation, moderate pace, good energy, pitch variety, and positive emotion.\n"
+            "- Penalize excessive filler words, long pauses, monotone pitch, or negative tone.\n"
+            "- Score must be between 60 and 100.\n\n"
+            
             "The feedback should be:\n"
             "- 1-2 short sentences per section\n"
             "- Positive and constructive\n"
             "- Focused on improvement\n"
             "- Suitable for a student practicing public speaking\n\n"
-            "Here is the data:\n"
+            "Here is the analysis data:\n"
             f"{json.dumps(analysis_result, indent=2)}"
         )
 
         response = model.generate_content(
             contents=[{"role": "user", "parts": [prompt]}],
             generation_config={
-                "temperature": 0.7,
+                "temperature": 0.6,
                 "top_p": 1,
-                "max_output_tokens": 512
+                "max_output_tokens": 700
             }
         )
 
         output = response.text.strip()
 
-
-        # Extract JSON using regex (finds first valid JSON block)
+        # Extract JSON using regex
         match = re.search(r"{.*}", output, re.DOTALL)
         if not match:
             raise ValueError("No valid JSON object found in response.")
 
-        feedback_json = json.loads(match.group(0))
-
-
-        return feedback_json
+        full_feedback = json.loads(match.group(0))
+        return full_feedback
 
     except Exception as e:
-        print(f"❌ Feedback generation failed: {type(e).__name__} - {e}", file=sys.stderr)
+        print(f"❌ Full feedback generation failed: {type(e).__name__} - {e}", file=sys.stderr)
         return None
 
 # Example usage

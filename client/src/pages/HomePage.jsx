@@ -64,7 +64,7 @@ const HomePage = () => {
               >
                 <Link
                   to="/practice"
-                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-2"
+                  className="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   Start Practicing
                   <ArrowRight size={16} />
@@ -76,7 +76,7 @@ const HomePage = () => {
               >
                 <Link
                   to="/games"
-                  className="px-8 py-3 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full sm:w-auto px-8 py-3 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
                 >
                   Explore Games
                 </Link>

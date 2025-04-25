@@ -716,16 +716,16 @@ const AudioAnalysis = () => {
                         />
                         <path
                           className={`stroke-current ${
-                            analysisResults.overallScore >= 80
+                            analysisResults.section_feedback.overallScore >= 80
                               ? "text-green-500"
-                              : analysisResults.overallScore >= 60
+                              : analysisResults.section_feedback.overallScore >= 60
                               ? "text-yellow-500"
                               : "text-red-500"
                           }`}
                           fill="none"
                           strokeWidth="3"
                           strokeLinecap="round"
-                          strokeDasharray={`${analysisResults.overallScore}, 100`}
+                          strokeDasharray={`${analysisResults.section_feedback.overallScore}, 100`}
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                         <text
@@ -734,7 +734,7 @@ const AudioAnalysis = () => {
                           className="fill-current text-gray-800 dark:text-gray-200 font-bold text-small"
                           textAnchor="middle"
                         >
-                          {analysisResults.overallScore}
+                          {analysisResults.section_feedback.overallScore}
                         </text>
                       </svg>
                     </div>
@@ -757,7 +757,7 @@ const AudioAnalysis = () => {
                         </span>
                       </div>
                       <p className="text-gray-700 dark:text-gray-300">
-                        {analysisResults.overallFeedback}
+                        {analysisResults.section_feedback.overallFeedback}
                       </p>
                     </div>
                   </div>

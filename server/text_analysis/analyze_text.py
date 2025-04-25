@@ -1,6 +1,7 @@
 import os
 import json
 import google.generativeai as genai
+import sys
 
 # Load environment variable from .env
 GEMINI_API_KEY = "AIzaSyD0cCbmyhXufYBpdrkjNE5-aaGBFjFKvm0"
@@ -73,7 +74,9 @@ Example JSON format:
     "word_complexity": "Simple and common vocabulary.",
     "sentence_length": "Short sentence.",
     "correction": "None needed."
-  }
+  },
+  "original_text": "Me go to store yesterday but not buy nothing because forget money at home.",
+  "corrected_text": "I went to the store yesterday but didn’t buy anything because I forgot my money at home.",
 }
 """
 
@@ -106,7 +109,6 @@ Return a **valid JSON object only** with keys matching the selected categories. 
 def analyze_text_with_gemini(text: str, parameters: list[str]) -> dict:
     if not text or not parameters:
         raise ValueError("Text and list of parameters are required.")
-
     prompt = build_gemini_prompt(text, parameters)
 
     response = model.generate_content(
@@ -126,13 +128,24 @@ def analyze_text_with_gemini(text: str, parameters: list[str]) -> dict:
         raise ValueError(f"Gemini returned an invalid JSON response: {response.text}")
 
 
-# 🎯 Example usage for testing
-if __name__ == "__main__":
-    sample_text = "Yesterday I was go to library because I needing to do research but it were close so I gone to coffee shop it was noisy and I not could concentrate then my friend he called me and said why you not studying home instead so I come back and tryed but forgot my book there."
-    selected_parameters = ["structure", "style", "grammar", "keywords", "readability"]
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python analyze_text.py <text_to_analyze>")
+        sys.exit(1)
+
+    text_to_analyze = sys.argv[1]
+
+    parameters = ["structure", "style", "grammar", "keywords", "readability"]
 
     try:
-        feedback = analyze_text_with_gemini(sample_text, selected_parameters)
-        print(json.dumps(feedback, indent=2))
+        # Analyze the text using Gemini
+        feedback = analyze_text_with_gemini(text_to_analyze, parameters)
+        print(json.dumps(feedback, indent=2))  # Print feedback in JSON format
     except Exception as e:
         print(f"❌ Error: {e}")
+        sys.exit(1)
+
+
+# Calling the main function if the script is executed directly
+if __name__ == "__main__":
+    main()
