@@ -1020,7 +1020,7 @@ Readability: ${results.readability.level} (Score: ${
                               <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
                                 Filler Words
                               </h4>
-                              {/* <div className="space-y-2">
+                              <div className="space-y-2">
                                 {Object.entries(
                                   results.keywords.fillerWords
                                 ).map(([word, count]) => (
@@ -1049,7 +1049,7 @@ Readability: ${results.readability.level} (Score: ${
                                     </div>
                                   </div>
                                 ))}
-                              </div> */}
+                              </div>
                             </div>
 
                             {/* Repeated Words */}
@@ -1057,7 +1057,7 @@ Readability: ${results.readability.level} (Score: ${
                               <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
                                 Repeated Words
                               </h4>
-                              {/* <div className="space-y-2">
+                              <div className="space-y-2">
                                 {Object.entries(
                                   results.keywords.repeatedWords
                                 ).map(([word, count]) => (
@@ -1086,7 +1086,7 @@ Readability: ${results.readability.level} (Score: ${
                                     </div>
                                   </div>
                                 ))}
-                              </div> */}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1201,18 +1201,6 @@ Readability: ${results.readability.level} (Score: ${
                                   {results.readability.word_complexity}
                                 </p>
                               </div>
-                              <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  Avg. Word Length
-                                </p>
-                                <p className="text-lg font-medium text-gray-900 dark:text-white">
-                                  {/* {
-                                    // results.readability.metrics
-                                    //   .averageWordLength
-                                  }{" "} */}{" "}
-                                  0 characters
-                                </p>
-                              </div>
                             </div>
                           </div>
 
@@ -1266,7 +1254,7 @@ Readability: ${results.readability.level} (Score: ${
                             <Check className="w-5 h-5 text-green-500 mr-2" />
                             Positive Points
                           </h4>
-                          {/* <ul className="space-y-2">
+                          <ul className="space-y-2">
                             {results.summary.positivePoints.map(
                               (point, index) => (
                                 <li key={index} className="flex items-start">
@@ -1277,7 +1265,7 @@ Readability: ${results.readability.level} (Score: ${
                                 </li>
                               )
                             )}
-                          </ul> */}
+                          </ul>
                         </div>
 
                         {/* Improvement Areas */}
@@ -1286,7 +1274,7 @@ Readability: ${results.readability.level} (Score: ${
                             <AlertCircle className="w-5 h-5 text-amber-500 mr-2" />
                             Areas for Improvement
                           </h4>
-                          {/* <ul className="space-y-2">
+                          <ul className="space-y-2">
                             {results.summary.improvements.map(
                               (point, index) => (
                                 <li key={index} className="flex items-start">
@@ -1299,7 +1287,7 @@ Readability: ${results.readability.level} (Score: ${
                                 </li>
                               )
                             )}
-                          </ul> */}
+                          </ul>
                         </div>
                       </div>
 

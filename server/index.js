@@ -45,7 +45,7 @@ app.post("/audio-analysis", upload.single("audio"), async (req, res) => {
       try {
         const result = JSON.parse(stdout);
         res.json(result);
-        console.log("✅ JSON parsed successfully:");
+        // console.log("✅ JSON parsed successfully:");
       } catch (e) {
         console.error("🚨 Failed to parse JSON from Python:", e.message);
         console.log("⚠️ Raw output:", stdout);
@@ -59,7 +59,7 @@ app.post("/audio-analysis", upload.single("audio"), async (req, res) => {
 
 // 🎭 EMOTION PREDICTION ENDPOINT
 app.post("/predict", upload.single("audio"), (req, res) => {
-  console.log("🎧 Emotion prediction request received");
+  // console.log("🎧 Emotion prediction request received");
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
   const filePath = path.join(__dirname, req.file.path);
@@ -80,7 +80,7 @@ app.post("/predict", upload.single("audio"), (req, res) => {
       const cleanedOutput = stdout.slice(jsonStartIndex, jsonEndIndex + 1);
 
       const parsed = JSON.parse(cleanedOutput);
-      console.log("✅ Parsed JSON:", parsed);
+      // console.log("✅ Parsed JSON:", parsed);
       res.json(parsed);
     } catch (e) {
       console.error("🚨 Failed to parse JSON from Python:", e.message);

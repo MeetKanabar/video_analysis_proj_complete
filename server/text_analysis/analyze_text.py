@@ -3,149 +3,169 @@ import json
 import google.generativeai as genai
 import sys
 
-# Load environment variable from .env
+# Load API Key
 GEMINI_API_KEY = "AIzaSyD0cCbmyhXufYBpdrkjNE5-aaGBFjFKvm0"
 
 # Configure Gemini
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-2.0-flash")
 
-# Criteria explanations used for prompt generation
-CRITERIA_EXPLANATIONS = {
-    "structure": "Analyze if the text has a clear introduction, body, and conclusion. Mention logical flow and transitions.",
-    "style": "Comment on the tone (e.g., formal, persuasive) and stylistic consistency.",
-    "grammar": "Check for grammatical errors, sentence complexity, and passive voice.",
-    "keywords": "Highlight use of filler words, jargon, and suggest alternatives.",
-    "readability": "Calculate and return the Flesch Reading Ease score (a number between 0 and 100), then explain what it means. Also evaluate word complexity and sentence length."
-}
-
-
-def build_gemini_prompt(text: str, parameters: list[str]) -> str:
-    example_original = "Me go to store yesterday but not buy nothing because forget money at home."
-    example_corrected = "I went to the store yesterday but didn’t buy anything because I forgot my money at home."
-
-    criteria_explanations = {
-        "structure": "Comment on how well the text is organized (intro/body/conclusion or event flow).",
-        "style": "Evaluate tone and stylistic consistency.",
-        "grammar": "Check for grammar errors and explain how to fix them.",
-        "keywords": "Comment on filler word/jargon usage and improvement suggestions.",
-        "readability": "Give Flesch Reading Ease score, sentence length, and word complexity feedback."
-    }
-
-    selected_explanations = [criteria_explanations[p] for p in parameters if p in criteria_explanations]
-
+def build_gemini_prompt(text: str) -> str:
     example_json = """
-Example JSON format:
 {
   "structure": {
-    "issue": "The sentence lacks formal structure, which is okay for short narratives, but not ideal.",
-    "correction": "Use structured storytelling: start with time/place, action, outcome."
+    "issue": "Your structure lacks logical flow between sections.",
+    "correction": "Use clearer transitions between paragraphs and organize ideas better."
   },
   "style": {
-    "issue": "Tone is informal and lacks professionalism.",
-    "correction": "Use complete sentences and appropriate tone for your audience."
+    "issue": "Writing style is too formal for the intended audience.",
+    "correction": "Simplify the language and make it more conversational."
   },
   "grammar": {
     "issues": [
       {
-        "error": "Me go",
-        "correction": "I went",
-        "rule": "Subject-verb agreement"
-      },
-      {
-        "error": "not buy nothing",
-        "correction": "didn’t buy anything",
-        "rule": "Double negative"
-      },
-      {
-        "error": "forget money",
-        "correction": "forgot my money",
-        "rule": "Verb tense and possessive pronoun"
+        "error": "Their going to the store.",
+        "correction": "They're going to the store.",
+        "rule": "Confusion between 'their' and 'they're'."
       }
     ]
   },
   "keywords": {
-    "issue": "No filler or jargon words detected.",
-    "correction": "No improvement needed in keyword usage."
+    "issue": "Key ideas are not clearly emphasized.",
+    "correction": "Highlight important points using stronger keywords.",
+    "fillerWords": {
+      "like": 3,
+      "basically": 2
+    },
+    "repeatedWords": {
+      "important": 5,
+      "really": 3
+    }
   },
   "readability": {
-    "flesch_score": 95,
-    "description": "Very easy to read.",
-    "word_complexity": "Simple and common vocabulary.",
-    "sentence_length": "Short sentence.",
-    "correction": "None needed."
+    "score": 72,
+    "level": "Standard",
+    "wordComplexity": "Moderate",
+    "sentenceLength": "Medium",
+    "flesch_score": 8.3,
+    "sentence_length": 14,
+    "word_complexity": 0.45,
+    "correction": "The Flesch Reading Ease Score is 72, which is considered 'Standard'. To improve clarity, use simpler words and shorten complex sentences."
   },
-  "original_text": "Me go to store yesterday but not buy nothing because forget money at home.",
-  "corrected_text": "I went to the store yesterday but didn’t buy anything because I forgot my money at home.",
+  "summary": {
+    "positivePoints": [
+      "Good vocabulary usage."
+    ],
+    "improvements": [
+      "Reduce filler words."
+    ]
+  }
 }
 """
 
     prompt = f"""
-You are a writing assistant. Here is a reference example for how you should analyze and return feedback:
+You are a strict academic writing assistant.
 
-Example Input:
-\"\"\"{example_original}\"\"\"
+Analyze the text below for the following areas:
+- Structure
+- Style
+- Grammar (be exhaustive: include tense, punctuation, capitalization, fragments, informal phrases)
+- Keywords (clarity, filler and repeated word analysis)
+- Readability (Flesch Reading Ease, complexity, level, sentence length)
 
-Corrected Version:
-\"\"\"{example_corrected}\"\"\"
+Return output strictly in the following JSON format:
 
-Reference Feedback Format:
 {example_json}
 
-Now analyze this new input using the same format.
+RULES:
+- In the 'readability.correction' field, ALWAYS explain the Flesch Reading Ease score and how to improve it.
+- If any value is missing, use:
+  - "N/A" for strings
+  - 0 for numbers
+  - [] for arrays
+  - {{}} for objects
+- Do NOT include any text outside the JSON. No markdown, no code blocks.
+- Output must be a pure, parsable JSON object.
 
-Input to Analyze:
+Input Text:
 \"\"\"{text}\"\"\"
-
-Evaluate only the following areas:
-- {'; '.join(selected_explanations)}
-
-Return a **valid JSON object only** with keys matching the selected categories. No explanation outside the JSON block.
 """.strip()
 
     return prompt
 
 
-def analyze_text_with_gemini(text: str, parameters: list[str]) -> dict:
-    if not text or not parameters:
-        raise ValueError("Text and list of parameters are required.")
-    prompt = build_gemini_prompt(text, parameters)
+def analyze_text_with_gemini(text: str) -> dict:
+    if not text:
+        raise ValueError("Text to analyze is required.")
+
+    prompt = build_gemini_prompt(text)
 
     response = model.generate_content(
         contents=[{"role": "user", "parts": [prompt]}],
         generation_config={
-            "temperature": 0.7,
+            "temperature": 0.3,
             "top_p": 1,
-            "max_output_tokens": 1024
+            "max_output_tokens": 1500
         }
     )
 
     cleaned_response = response.text.strip().strip("```").strip("json").strip()
 
     try:
-        return json.loads(cleaned_response)
-    except json.JSONDecodeError:
-        raise ValueError(f"Gemini returned an invalid JSON response: {response.text}")
+        parsed = json.loads(cleaned_response)
+        return fill_missing_fields(parsed)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Gemini returned invalid JSON: {e}")
 
+def fill_missing_fields(data: dict) -> dict:
+    # Fill missing fields if Gemini skips anything
+    return {
+        "structure": {
+            "issue": data.get("structure", {}).get("issue", "N/A"),
+            "correction": data.get("structure", {}).get("correction", "N/A")
+        },
+        "style": {
+            "issue": data.get("style", {}).get("issue", "N/A"),
+            "correction": data.get("style", {}).get("correction", "N/A")
+        },
+        "grammar": {
+            "issues": data.get("grammar", {}).get("issues", [])
+        },
+        "keywords": {
+            "issue": data.get("keywords", {}).get("issue", "N/A"),
+            "correction": data.get("keywords", {}).get("correction", "N/A"),
+            "fillerWords": data.get("keywords", {}).get("fillerWords", {}),
+            "repeatedWords": data.get("keywords", {}).get("repeatedWords", {})
+        },
+        "readability": {
+            "score": data.get("readability", {}).get("score", 0),
+            "level": data.get("readability", {}).get("level", "N/A"),
+            "wordComplexity": data.get("readability", {}).get("wordComplexity", "N/A"),
+            "sentenceLength": data.get("readability", {}).get("sentenceLength", "N/A"),
+            "flesch_score": data.get("readability", {}).get("flesch_score", 0),
+            "sentence_length": data.get("readability", {}).get("sentence_length", 0),
+            "word_complexity": data.get("readability", {}).get("word_complexity", 0),
+            "correction": data.get("readability", {}).get("correction", "N/A")
+        },
+        "summary": {
+            "positivePoints": data.get("summary", {}).get("positivePoints", []),
+            "improvements": data.get("summary", {}).get("improvements", [])
+        }
+    }
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python analyze_text.py <text_to_analyze>")
+        print("Usage: python analyze_text.py \"<text_to_analyze>\"")
         sys.exit(1)
 
     text_to_analyze = sys.argv[1]
 
-    parameters = ["structure", "style", "grammar", "keywords", "readability"]
-
     try:
-        # Analyze the text using Gemini
-        feedback = analyze_text_with_gemini(text_to_analyze, parameters)
-        print(json.dumps(feedback, indent=2))  # Print feedback in JSON format
+        feedback = analyze_text_with_gemini(text_to_analyze)
+        print(json.dumps(feedback, indent=2))
     except Exception as e:
         print(f"❌ Error: {e}")
         sys.exit(1)
 
-
-# Calling the main function if the script is executed directly
 if __name__ == "__main__":
     main()

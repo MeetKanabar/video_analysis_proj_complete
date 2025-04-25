@@ -105,6 +105,6 @@ if __name__ == "__main__":
         if len(sys.argv) < 2:
             raise ValueError("No audio file path provided.")
         file_path = sys.argv[1]
-        print(predict_emotion(file_path))
+        # print(predict_emotion(file_path))
     except Exception as e:
         print(json.dumps({"error": str(e)}), file=sys.stderr)
